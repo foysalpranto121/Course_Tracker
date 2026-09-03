@@ -33,12 +33,12 @@ The system follows a clean modular architecture separating the **Frontend presen
 
 ```mermaid
 flowchart TD
-    subgraph FRONTEND ["🎨 FRONTEND LAYER"]
+    subgraph FRONTEND["Frontend Layer"]
         UI["HTML5 & Bootstrap 5"]
         ST["Custom CSS3 & JavaScript"]
     end
 
-    subgraph BACKEND ["⚙️ BACKEND ENGINE (Django)"]
+    subgraph BACKEND["Backend Engine (Django)"]
         URL["Django Router (urls.py)"]
         VIEW["Views & Controllers (views.py)"]
         FORM["Form Validation (forms.py)"]
@@ -46,15 +46,17 @@ flowchart TD
         ADM["Django Admin Panel (admin.py)"]
     end
 
-    subgraph DATABASE ["🗄️ PERSISTENCE LAYER"]
+    subgraph DATABASE["Persistence Layer"]
         DB[("PostgreSQL Database")]
     end
 
-    FRONTEND <--> VIEW
-    VIEW <--> FORM
-    VIEW <--> MDL
-    MDL <--> DB
-    ADM <--> MDL
+    UI --> VIEW
+    ST --> VIEW
+    URL --> VIEW
+    VIEW --> FORM
+    VIEW --> MDL
+    MDL --> DB
+    ADM --> MDL
 ```
 
 ---
@@ -66,20 +68,20 @@ Understanding how requests flow through the application from the client's browse
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as 🌐 Client Browser
-    participant Router as 🔀 Django Router (urls.py)
-    participant View as 🧠 View Handler (views.py)
-    participant Form as 📝 Form Validation (forms.py)
-    participant Model as 🗃️ Django ORM (models.py)
-    participant DB as 🐘 PostgreSQL Database
-    participant Template as 🖼️ Template Engine (base.html)
+    actor User as Client Browser
+    participant Router as Django Router (urls.py)
+    participant View as View Handler (views.py)
+    participant Form as Form Validation (forms.py)
+    participant Model as Django ORM (models.py)
+    participant DB as PostgreSQL Database
+    participant Template as Template Engine (base.html)
 
-    User->>Router: HTTP Request (GET / POST)
-    Router->>View: Resolves URL & Dispatches Request
+    User->>Router: HTTP Request (GET or POST)
+    Router->>View: Resolves URL and Dispatches Request
     alt Form Submission (POST)
         View->>Form: Validates Input Data
     end
-    View->>Model: Query / Modify Data Records
+    View->>Model: Query or Modify Data Records
     Model->>DB: SQL Execution
     DB-->>Model: Returns Record Set
     View->>Template: Renders Context (Courses, Tasks, Stats)
