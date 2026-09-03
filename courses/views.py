@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CourseForm, TaskForm
@@ -10,12 +11,8 @@ def dashboard(request):
     active_courses = Course.objects.exclude(status="completed").count()
     completed_courses = Course.objects.filter(status="completed").count()
 
-    if total_courses:
-        overall_progress = int(
-            round(sum(course.progress for course in Course.objects.all()) / total_courses)
-        )
-    else:
-        overall_progress = 0
+    avg_progress = Course.objects.aggregate(avg=Avg("progress"))["avg"]
+    overall_progress = int(round(avg_progress)) if avg_progress is not None else 0
 
     context = {
         "courses": courses,
