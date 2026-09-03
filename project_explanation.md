@@ -19,23 +19,17 @@ Welcome to the comprehensive technical documentation for the **Course Tracker & 
 
 Django uses the **MVT (Model-View-Template)** architectural pattern, which is a variation of the traditional **MVC (Model-View-Controller)** pattern.
 
+```mermaid
+graph TD
+    UI["HTML5 & Bootstrap 5"] --> VIEW["Django Views (views.py)"]
+    ST["Custom CSS3 & JavaScript"] --> VIEW
+    URL["Django Router (urls.py)"] --> VIEW
+    VIEW --> FORM["Form Validation (forms.py)"]
+    VIEW --> MDL["Django Models / ORM (models.py)"]
+    MDL --> DB[("PostgreSQL Database")]
+    ADM["Django Admin (admin.py)"] --> MDL
 ```
-       🌐 HTTP Request (Browser)
-                  │
-                  ▼
-         🔀 Django Router (urls.py)
-                  │
-                  ▼
-      🧠 View Controller (views.py) ◄────► 📝 Form Validator (forms.py)
-                  │
-         ┌────────┴────────┐
-         ▼                 ▼
-  🗄️ Model / ORM     🖼️ Template Engine
-   (models.py)        (templates/*.html)
-         │                 │
-         ▼                 ▼
- 🐘 Database (PostgreSQL)  🌐 HTTP Response (HTML)
-```
+
 
 | Layer | Responsibility in this Application |
 | :--- | :--- |

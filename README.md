@@ -32,31 +32,14 @@ The system follows a clean modular architecture separating the **Frontend presen
 ### System Flow Diagram
 
 ```mermaid
-flowchart TD
-    subgraph FRONTEND["Frontend Layer"]
-        UI["HTML5 & Bootstrap 5"]
-        ST["Custom CSS3 & JavaScript"]
-    end
-
-    subgraph BACKEND["Backend Engine (Django)"]
-        URL["Django Router (urls.py)"]
-        VIEW["Views & Controllers (views.py)"]
-        FORM["Form Validation (forms.py)"]
-        MDL["Django ORM / Models (models.py)"]
-        ADM["Django Admin Panel (admin.py)"]
-    end
-
-    subgraph DATABASE["Persistence Layer"]
-        DB[("PostgreSQL Database")]
-    end
-
-    UI --> VIEW
-    ST --> VIEW
-    URL --> VIEW
-    VIEW --> FORM
-    VIEW --> MDL
-    MDL --> DB
-    ADM --> MDL
+graph TD
+    UI["HTML5 & Bootstrap 5"] --> VIEW["Django Views (views.py)"]
+    ST["Custom CSS3 & JavaScript"] --> VIEW
+    URL["Django Router (urls.py)"] --> VIEW
+    VIEW --> FORM["Form Validation (forms.py)"]
+    VIEW --> MDL["Django Models / ORM (models.py)"]
+    MDL --> DB[("PostgreSQL Database")]
+    ADM["Django Admin (admin.py)"] --> MDL
 ```
 
 ---
