@@ -1,0 +1,20 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.progress {
+    height: 20px;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
