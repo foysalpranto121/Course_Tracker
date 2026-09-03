@@ -31,15 +31,26 @@ The system follows a clean modular architecture separating the **Frontend presen
 
 ### System Flow Diagram
 
-```mermaid
-graph TD
-    UI["HTML5 & Bootstrap 5"] --> VIEW["Django Views (views.py)"]
-    ST["Custom CSS3 & JavaScript"] --> VIEW
-    URL["Django Router (urls.py)"] --> VIEW
-    VIEW --> FORM["Form Validation (forms.py)"]
-    VIEW --> MDL["Django Models / ORM (models.py)"]
-    MDL --> DB[("PostgreSQL Database")]
-    ADM["Django Admin (admin.py)"] --> MDL
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                        🎓 COURSE TRACKER ARCHITECTURE                   │
+└────────────────────────────────────────────────────────────────────────┘
+
+ [ 🎨 FRONTEND LAYER ]
+   ├── HTML5 Templates (base.html, dashboard.html, etc.)
+   ├── Custom CSS3 (Inter Font, Glassmorphism Header) & Bootstrap 5
+   └── Client-side JavaScript (app.js)
+            │
+            ▼ (HTTP Request: GET / POST)
+ [ ⚙️ BACKEND ENGINE - Django ]
+   ├── Router (todo_project/urls.py & courses/urls.py)
+   ├── Views Controller (courses/views.py)
+   ├── Form Validator (courses/forms.py)
+   └── ORM Layer (courses/models.py)
+            │
+            ▼ (SQL Execution)
+ [ 🗄️ PERSISTENCE LAYER ]
+   └── PostgreSQL Database (todo_db)
 ```
 
 ---
@@ -48,27 +59,24 @@ graph TD
 
 Understanding how requests flow through the application from the client's browser to the database and back:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Client Browser
-    participant Router as Django Router (urls.py)
-    participant View as View Handler (views.py)
-    participant Form as Form Validation (forms.py)
-    participant Model as Django ORM (models.py)
-    participant DB as PostgreSQL Database
-    participant Template as Template Engine (base.html)
+```text
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                       🔄 DJANGO REQUEST-RESPONSE CYCLE                         │
+└────────────────────────────────────────────────────────────────────────────────┘
 
-    User->>Router: HTTP Request (GET or POST)
-    Router->>View: Resolves URL and Dispatches Request
-    alt Form Submission (POST)
-        View->>Form: Validates Input Data
-    end
-    View->>Model: Query or Modify Data Records
-    Model->>DB: SQL Execution
-    DB-->>Model: Returns Record Set
-    View->>Template: Renders Context (Courses, Tasks, Stats)
-    Template-->>User: Delivers Formatted HTML HTTP Response
+ 1. 🌐 Browser ──────► Sends HTTP Request (e.g., GET /courses/ or POST /create/)
+                          │
+ 2. 🔀 urls.py ───────► Matches URL pattern & routes to view function
+                          │
+ 3. 🧠 views.py ──────► Handles business logic:
+                          ├─► Validates POST input via forms.py
+                          └─► Queries PostgreSQL DB via models.py ORM
+                          │
+ 4. 🗄️ Database ──────► Returns SQL Recordset (Courses & Tasks)
+                          │
+ 5. 🖼️ Templates ────► Renders context data into HTML (base.html + page)
+                          │
+ 6. 🌐 Browser ──────◄ Receives & displays fully rendered HTTP Response (HTML)
 ```
 
 ---

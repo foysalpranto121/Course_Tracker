@@ -19,16 +19,28 @@ Welcome to the comprehensive technical documentation for the **Course Tracker & 
 
 Django uses the **MVT (Model-View-Template)** architectural pattern, which is a variation of the traditional **MVC (Model-View-Controller)** pattern.
 
-```mermaid
-graph TD
-    UI["HTML5 & Bootstrap 5"] --> VIEW["Django Views (views.py)"]
-    ST["Custom CSS3 & JavaScript"] --> VIEW
-    URL["Django Router (urls.py)"] --> VIEW
-    VIEW --> FORM["Form Validation (forms.py)"]
-    VIEW --> MDL["Django Models / ORM (models.py)"]
-    MDL --> DB[("PostgreSQL Database")]
-    ADM["Django Admin (admin.py)"] --> MDL
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                        🎓 COURSE TRACKER ARCHITECTURE                   │
+└────────────────────────────────────────────────────────────────────────┘
+
+ [ 🎨 FRONTEND LAYER ]
+   ├── HTML5 Templates (base.html, dashboard.html, etc.)
+   ├── Custom CSS3 (Inter Font, Glassmorphism Header) & Bootstrap 5
+   └── Client-side JavaScript (app.js)
+            │
+            ▼ (HTTP Request: GET / POST)
+ [ ⚙️ BACKEND ENGINE - Django ]
+   ├── Router (todo_project/urls.py & courses/urls.py)
+   ├── Views Controller (courses/views.py)
+   ├── Form Validator (courses/forms.py)
+   └── ORM Layer (courses/models.py)
+            │
+            ▼ (SQL Execution)
+ [ 🗄️ PERSISTENCE LAYER ]
+   └── PostgreSQL Database (todo_db)
 ```
+
 
 
 | Layer | Responsibility in this Application |
