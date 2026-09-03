@@ -247,8 +247,39 @@ Open your browser and navigate to:
 
 ---
 
+## 🌐 cPanel Shared Hosting Deployment (`prantodev.com`)
+
+To host this Django project on your **Shared Hosting SSD NVMe (`prantodev.com`)** via cPanel:
+
+1. **Log in to cPanel:** Click `Log in to cPanel` from your hosting client portal.
+2. **Setup Python Application:**
+   - In cPanel, search for **"Setup Python App"** under Software.
+   - Click **Create Application**.
+   - Select **Python Version** (e.g., `3.10` or `3.11`).
+   - Set **Application Root**: `TODO_using-Django` (or root path where files are uploaded).
+   - Set **Application URL**: `prantodev.com` (or `todo.prantodev.com`).
+   - Set **Application Startup File**: `passenger_wsgi.py`.
+   - Set **Application Entry Point**: `application`.
+3. **Upload / Git Clone Repository:**
+   - Upload project files or clone via cPanel Git Version Control into the app root folder.
+4. **Install Dependencies:**
+   - Inside cPanel **Setup Python App**, click **Run pip install** and specify `requirements.txt` (or run in cPanel Terminal).
+5. **Database Configuration:**
+   - Go to **PostgreSQL Databases** (or **MySQL Databases**) in cPanel and create a database + user.
+   - Update `DATABASES` settings in `todo_project/settings.py` with database name, user, and password.
+6. **Migrate & Collect Static Files:**
+   - Run in cPanel Terminal (or Virtualenv):
+     ```bash
+     python manage.py migrate
+     python manage.py collectstatic
+     ```
+7. **Restart Application:** Click **Restart** inside cPanel Setup Python App!
+
+---
+
 ## 📜 License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 Developed with ❤️ using **Django** and **PostgreSQL**.
+
