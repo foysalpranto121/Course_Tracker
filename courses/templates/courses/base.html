@@ -69,10 +69,33 @@
     <!-- Main Content -->
     <main class="container py-4 flex-grow-1">
 
+        {% if messages %}
+            <div class="messages-container mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm border-0 d-flex align-items-center justify-content-between" role="alert">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if message.tags == 'success' %}
+                                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="bi bi-exclamation-triangle-fill fs-5 text-warning"></i>
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                <i class="bi bi-x-circle-fill fs-5 text-danger"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill fs-5 text-info"></i>
+                            {% endif %}
+                            <div>{{ message|safe }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         {% block content %}
         {% endblock %}
 
     </main>
+
 
 
     <!-- Footer -->

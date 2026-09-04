@@ -6,23 +6,34 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
 
     <div>
         <h1 class="h2 fw-bold text-dark mb-1">All Courses</h1>
         <p class="text-muted mb-0">
-            View, manage, and update your enrolled courses.
+            View, manage, export, and import your enrolled courses.
         </p>
     </div>
 
-    <a
-        href="{% url 'courses:course_create' %}"
-        class="btn btn-primary shadow-sm rounded-pill px-3"
-    >
-        <i class="bi bi-plus-lg me-1"></i> Add Course
-    </a>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <!-- Export Excel Button -->
+        <a href="{% url 'courses:course_export' %}" class="btn btn-outline-success shadow-sm rounded-pill px-3">
+            <i class="bi bi-file-earmark-excel me-1.5"></i> Export Excel
+        </a>
+
+        <!-- Import Excel Trigger Button -->
+        <button type="button" class="btn btn-outline-primary shadow-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importExcelModal">
+            <i class="bi bi-file-earmark-arrow-up me-1.5"></i> Import Excel
+        </button>
+
+        <!-- Add Course Button -->
+        <a href="{% url 'courses:course_create' %}" class="btn btn-primary shadow-sm rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i> Add Course
+        </a>
+    </div>
 
 </div>
+
 
 
 {% if courses %}
@@ -157,5 +168,86 @@
 </div>
 
 {% endif %}
+
+<!-- Import Excel Modal -->
+<div class="modal fade" id="importExcelModal" tabindex="-1" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            
+            <form action="{% url 'courses:course_import' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="modal-header bg-primary text-white py-3">
+                    <h5 class="modal-header-title modal-title fw-bold d-flex align-items-center gap-2 mb-0" id="importExcelModalLabel">
+                        <i class="bi bi-file-earmark-spreadsheet-fill fs-4"></i> Import Courses from Excel / CSV
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4">
+
+                    <!-- Template Download Callout -->
+                    <div class="alert alert-light border d-flex align-items-center justify-content-between p-3 rounded-3 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle text-primary fs-4"></i>
+                            <div>
+                                <strong class="d-block text-dark">Need a formatted Excel file?</strong>
+                                <span class="text-muted small">Download our sample template with standard columns.</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'courses:course_export_template' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            <i class="bi bi-download me-1"></i> Download Template
+                        </a>
+                    </div>
+
+                    <!-- File Upload Input -->
+                    <div class="mb-4">
+                        <label for="excel_file" class="form-label fw-semibold text-dark">Select Excel or CSV File <span class="text-danger">*</span></label>
+                        <input type="file" name="excel_file" id="excel_file" class="form-control form-control-lg" accept=".xlsx, .xls, .csv" required>
+                        <div class="form-text mt-1 text-muted">Supported formats: <code>.xlsx</code>, <code>.xls</code>, <code>.csv</code></div>
+                    </div>
+
+                    <!-- Duplicate Handling Option -->
+                    <div class="card border rounded-3 p-3 bg-light">
+                        <label class="fw-bold text-dark mb-2 d-flex align-items-center gap-1.5">
+                            <i class="bi bi-layers text-primary"></i> Duplicate Handling Policy
+                        </label>
+                        <p class="text-muted small mb-3">Choose how the importer should handle courses that already exist in the database (matched by Title):</p>
+
+                        <div class="form-check mb-2.5">
+                            <input class="form-check-input" type="radio" name="duplicate_action" id="dup_skip" value="skip" checked>
+                            <label class="form-check-label fw-semibold text-dark" for="dup_skip">
+                                Skip Duplicates & Track Report <span class="badge bg-secondary ms-1">Recommended</span>
+                            </label>
+                            <div class="text-muted small ms-0">
+                                Duplicate records will be skipped. A downloadable Excel report (<code>duplicate_courses_report.xlsx</code>) will be generated for inspect/edit.
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duplicate_action" id="dup_update" value="update">
+                            <label class="form-check-label fw-semibold text-dark" for="dup_update">
+                                Update Existing Records
+                            </label>
+                            <div class="text-muted small ms-0">
+                                Existing courses matching the Excel title will be updated with the newly provided information.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer bg-light px-4 py-3 border-top">
+                    <button type="button" class="btn btn-light border px-4 rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4 rounded-pill">
+                        <i class="bi bi-upload me-1.5"></i> Upload & Process
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 
 {% endblock %}
