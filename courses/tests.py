@@ -77,6 +77,42 @@ class CourseUrlTests(TestCase):
         self.assertEqual(res_cat.status_code, 200)
         self.assertEqual(len(res_cat.context["page_obj"]), 2)
 
+    def test_performance_timing_middleware_header(self):
+        response = self.client.get(reverse("courses:signin"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("X-Performance-Timing-Ms", response.headers)
+
+    def test_course_pre_save_status_auto_sync(self):
+        from .models import Course
+        course = Course.objects.create(title="Signals Test Course", progress=100, status="not_started")
+        # pre_save signal should automatically set status to 'completed'
+        self.assertEqual(course.status, "completed")
+
+    def test_task_post_save_and_post_delete_progress_recalculation(self):
+        from .models import Course, Task
+        course = Course.objects.create(title="Task Signals Course", progress=0, status="not_started")
+        task1 = Task.objects.create(course=course, title="Task 1", completed=True)
+        task2 = Task.objects.create(course=course, title="Task 2", completed=False)
+
+        # 1 completed out of 2 tasks -> progress should be 50%
+        course.refresh_from_db()
+        self.assertEqual(course.progress, 50)
+        self.assertEqual(course.status, "in_progress")
+
+        # Mark task2 completed
+        task2.completed = True
+        task2.save()
+        course.refresh_from_db()
+        self.assertEqual(course.progress, 100)
+        self.assertEqual(course.status, "completed")
+
+        # Delete task2 -> 1 completed out of 1 task -> progress should stay 100%
+        task2.delete()
+        course.refresh_from_db()
+        self.assertEqual(course.progress, 100)
+
+
+
 
 
 

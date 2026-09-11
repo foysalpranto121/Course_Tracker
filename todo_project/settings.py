@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'courses.middleware.IPBlockingMiddleware',  # 1. IP Blocking
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -48,7 +49,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Custom Application Middlewares
+    'courses.middleware.GlobalAuthCheckMiddleware',  # 2. Global Authentication Check
+    'courses.middleware.RequestResponseLoggingMiddleware',  # 3. Request & Response Logging
+    'courses.middleware.LanguageAndSessionManagementMiddleware',  # 4. Language & Session Management
+    'courses.middleware.PerformanceTimingMiddleware',  # 5. Performance Timing
 ]
+
+# Configurable Blocked IPs list (for IPBlockingMiddleware)
+BLOCKED_IPS = [
+    # Add IP strings to block, e.g.: '192.168.1.99'
+]
+
 
 ROOT_URLCONF = 'todo_project.urls'
 
