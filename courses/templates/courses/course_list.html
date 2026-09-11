@@ -154,7 +154,68 @@
 
         </div>
     </div>
+
+    {% if page_obj.has_other_pages %}
+        <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+            <div class="text-muted small">
+                Showing <span class="fw-semibold text-dark">{{ page_obj.start_index }}</span> to <span class="fw-semibold text-dark">{{ page_obj.end_index }}</span> of <span class="fw-semibold text-dark">{{ page_obj.paginator.count }}</span> courses
+            </div>
+
+            <nav aria-label="Course Pagination">
+                <ul class="pagination pagination-sm mb-0 gap-1 align-items-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link rounded-pill px-3 py-1.5 border-0 bg-light text-dark fw-medium" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <i class="bi bi-chevron-left me-1"></i> Previous
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link rounded-pill px-3 py-1.5 border-0 bg-light text-muted opacity-50 fw-medium">
+                                <i class="bi bi-chevron-left me-1"></i> Previous
+                            </span>
+                        </li>
+                    {% endif %}
+
+                    {% for page_num in page_range %}
+                        {% if page_num == page_obj.paginator.ELLIPSIS %}
+                            <li class="page-item disabled px-1 text-muted">
+                                <span>&hellip;</span>
+                            </li>
+                        {% elif page_num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link rounded-circle d-inline-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 34px; height: 34px;">
+                                    {{ page_num }}
+                                </span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link rounded-circle d-inline-flex align-items-center justify-content-center text-dark border-0 bg-light fw-medium" style="width: 34px; height: 34px;" href="?page={{ page_num }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link rounded-pill px-3 py-1.5 border-0 bg-light text-dark fw-medium" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                Next <i class="bi bi-chevron-right ms-1"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link rounded-pill px-3 py-1.5 border-0 bg-light text-muted opacity-50 fw-medium">
+                                Next <i class="bi bi-chevron-right ms-1"></i>
+                            </span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
 </div>
+
 
 {% else %}
 

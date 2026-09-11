@@ -29,4 +29,21 @@ class CourseUrlTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "testuser")
 
+    def test_course_list_pagination(self):
+        user = User.objects.create_user(username="testuser2", password="password123")
+        self.client.login(username="testuser2", password="password123")
+        from .models import Course
+        for i in range(12):
+            Course.objects.create(title=f"Course {i}")
+
+        response = self.client.get(reverse("courses:course_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("page_obj", response.context)
+        self.assertEqual(len(response.context["page_obj"]), 8)
+
+        response_page2 = self.client.get(reverse("courses:course_list") + "?page=2")
+        self.assertEqual(response_page2.status_code, 200)
+        self.assertEqual(len(response_page2.context["page_obj"]), 4)
+
+
 

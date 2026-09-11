@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Avg
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
+
 
 from .forms import (
     CourseForm,
@@ -139,8 +141,28 @@ def dashboard(request):
 
 @login_required
 def course_list(request):
-    courses = Course.objects.all()
-    return render(request, "courses/course_list.html", {"courses": courses})
+    course_qs = Course.objects.all().order_by("-created_at")
+    paginator = Paginator(course_qs, 8)
+    page_number = request.GET.get("page", 1)
+
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    page_range = paginator.get_elided_page_range(
+        page_obj.number, on_each_side=1, on_ends=1
+    )
+
+    context = {
+        "courses": page_obj,
+        "page_obj": page_obj,
+        "page_range": page_range,
+    }
+    return render(request, "courses/course_list.html", context)
+
 
 
 @login_required
