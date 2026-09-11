@@ -162,6 +162,7 @@ def fallback_assistant_response(context, prompt):
     """
     Intelligent local fallback assistant that fulfills the 5 AI Responsibilities
     using real database context when no external API key is configured.
+    Handles course-specific context when a user asks about a specific course.
     """
     prompt_lower = prompt.lower()
     user_name = context["user_name"]
@@ -170,8 +171,28 @@ def fallback_assistant_response(context, prompt):
     profile = context["profile"]
     goal = profile.get("learning_goal", "Master coursework")
 
+    # Detect if prompt refers to a specific course
+    matched_course = None
+    if c_summary["list"]:
+        for c in c_summary["list"]:
+            if c["title"].lower() in prompt_lower or prompt_lower.endswith(c["title"].lower()):
+                matched_course = c
+                break
+
     # 1. Summary / Progress tracking responsibility
-    if any(k in prompt_lower for k in ["summar", "progress", "stat", "overview", "report", "how am i doing"]):
+    if any(k in prompt_lower for k in ["summar", "progress", "stat", "overview", "report", "how am i doing", "key topics"]):
+        if matched_course:
+            return (
+                f"### 💡 Key Topics & Overview: **{matched_course['title']}**\n\n"
+                f"- **Category**: `{matched_course['category']}`\n"
+                f"- **Instructor**: {matched_course['instructor']}\n"
+                f"- **Current Progress**: **{matched_course['progress']}%** ({matched_course['status']})\n\n"
+                f"#### Core Learning Modules & Objectives:\n"
+                f"1. **Foundations**: Master key concepts in {matched_course['category']}.\n"
+                f"2. **Practical Applications**: Build projects & complete assignments under guidance of {matched_course['instructor']}.\n"
+                f"3. **Milestone Goal**: Finish remaining course tasks to reach 100% completion!\n"
+            )
+
         lines = [
             f"### 📊 Learning Progress Summary for **{user_name}**\n",
             f"- **Goal**: *{goal}*",
@@ -205,37 +226,42 @@ def fallback_assistant_response(context, prompt):
 
     # 3. Study Plan responsibility
     elif any(k in prompt_lower for k in ["study plan", "schedule", "routine", "plan", "timetable", "roadmap"]):
+        target_title = matched_course["title"] if matched_course else (c_summary["list"][0]["title"] if c_summary["list"] else "Core Subject")
+        cat = matched_course["category"] if matched_course else "General"
+
         lines = [
-            f"### 🗓️ Recommended 7-Day Study Schedule\n",
-            f"Tailored for your goal: **{goal}**\n",
-            "| Day | Action Plan & Focus | Estimated Time |",
+            f"### 🗓️ Customized 7-Day Study Plan for **{target_title}**\n",
+            f"- **Category**: `{cat}` | **Goal**: *{goal}*\n",
+            "| Day | Focus Activity & Milestones | Estimated Time |",
             "| :--- | :--- | :--- |",
-            f"| **Day 1** | Review lowest progress course: *{c_summary['list'][0]['title'] if c_summary['list'] else 'Core Subject'}* | 45 Mins |",
-            f"| **Day 2** | Tackle urgent tasks ({t_summary['pending_count']} pending) | 60 Mins |",
-            "| **Day 3** | Deep dive into key concepts & take notes | 45 Mins |",
-            "| **Day 4** | Complete practical tasks & coding exercises | 60 Mins |",
-            "| **Day 5** | Quiz yourself on recent module topics | 30 Mins |",
-            "| **Day 6** | Update course progress metrics & review completed items | 30 Mins |",
-            "| **Day 7** | Rest, consolidate notes & set goals for next week | 20 Mins |",
+            f"| **Day 1** | Core Concept Review: *{target_title}* fundamentals | 45 Mins |",
+            f"| **Day 2** | Practice Tasks & Assignments ({t_summary['pending_count']} pending tasks) | 60 Mins |",
+            "| **Day 3** | Hands-on Coding / Applied Exercises | 60 Mins |",
+            "| **Day 4** | Intermediate Modules & Notes Summary | 45 Mins |",
+            "| **Day 5** | AI Practice Quiz & Knowledge Check | 30 Mins |",
+            "| **Day 6** | Code Review & Completion Check | 40 Mins |",
+            "| **Day 7** | Rest & Set Goals for Next Week | 20 Mins |",
         ]
         return "\n".join(lines)
 
     # 4. Quiz / Concept practice responsibility
     elif any(k in prompt_lower for k in ["quiz", "test", "practice", "question", "explain", "concept"]):
-        if c_summary["list"]:
-            top_course = c_summary["list"][0]["title"]
-            cat = c_summary["list"][0]["category"]
-        else:
-            top_course = "Software Development"
-            cat = "General"
+        target_title = matched_course["title"] if matched_course else (c_summary["list"][0]["title"] if c_summary["list"] else "Software Engineering")
+        cat = matched_course["category"] if matched_course else "General"
 
         return (
-            f"### 🧩 Quick Practice Quiz: **{top_course}** (`{cat}`)\n\n"
-            f"**Question 1**: What is the primary benefit of modularizing code into separate components or views?\n"
-            f"- A) Makes files larger\n- B) Improves reusability, testability, and code organization\n- C) Disables caching\n\n"
-            f"**Question 2**: In project management, how does tracking task due dates help prevent project bottlenecks?\n"
-            f"- A) It prioritizes critical path activities before deadlines pass\n- B) It deletes uncompleted tasks automatically\n\n"
-            f"*(Tip: Reply with your answers to test your knowledge!)*"
+            f"### 🧩 AI Practice Quiz: **{target_title}** (`{cat}`)\n\n"
+            f"**Question 1**: What is the most effective approach when structuring a project in {cat}?\n"
+            f"- A) Write all code in a single file\n"
+            f"- B) Separate logic into modular components, views, and data models\n"
+            f"- C) Avoid using version control\n\n"
+            f"**Question 2**: In software development, how does tracking task completion percentages aid project management?\n"
+            f"- A) It provides transparent progress metrics & prevents deadline bottlenecks\n"
+            f"- B) It automatically deletes uncompleted tasks\n\n"
+            f"**Question 3**: Why is error logging and performance monitoring critical in production systems?\n"
+            f"- A) To increase server CPU load\n"
+            f"- B) To diagnose runtime bottlenecks and maintain system health\n\n"
+            f"*(Tip: Reply with your chosen options A, B, or C to check your answers!)*"
         )
 
     # 5. General motivation & advisor response
@@ -246,8 +272,8 @@ def fallback_assistant_response(context, prompt):
             f"**Here are things you can ask me to do:**\n"
             f"- 📊 *'Summarize my progress'* — Get a detailed breakdown of your active courses.\n"
             f"- ⏰ *'What tasks are due soon?'* — View prioritized upcoming deadlines.\n"
-            f"- 🗓️ *'Generate a 7-day study plan'* — Get a structured learning timetable.\n"
-            f"- 🧩 *'Quiz me on my courses'* — Test your knowledge with interactive questions.\n"
+            f"- 🗓️ *'Generate a 7-day study plan for [Course Name]'* — Get a custom timetable.\n"
+            f"- 🧩 *'Quiz me on [Course Name]'* — Test your knowledge with practice questions.\n"
             f"- 💡 *Ask any custom learning or technical question!*"
         )
 
