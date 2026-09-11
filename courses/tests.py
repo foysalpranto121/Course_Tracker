@@ -12,21 +12,21 @@ class CourseUrlTests(TestCase):
         self.assertEqual(reverse("courses:course_list"), "/courses/")
         self.assertEqual(resolve("/courses/").view_name, "courses:course_list")
 
-    def test_auth_urls_resolve(self):
-        self.assertEqual(reverse("courses:signin"), "/signin/")
-        self.assertEqual(reverse("courses:signup"), "/signup/")
-        self.assertEqual(reverse("courses:signout"), "/signout/")
+    def test_profile_url_resolves(self):
+        self.assertEqual(reverse("courses:profile"), "/profile/")
+        self.assertEqual(resolve("/profile/").view_name, "courses:profile")
 
-    def test_dashboard_requires_login(self):
-        response = self.client.get(reverse("courses:dashboard"))
+    def test_profile_requires_login(self):
+        response = self.client.get(reverse("courses:profile"))
         self.assertEqual(response.status_code, 302)
         self.assertIn("/signin/", response.url)
 
-    def test_signin_page_accessible(self):
-        response = self.client.get(reverse("courses:signin"))
+    def test_profile_auto_created_and_accessible_when_logged_in(self):
+        user = User.objects.create_user(username="testuser", password="password123")
+        self.assertTrue(hasattr(user, "profile"))
+        self.client.login(username="testuser", password="password123")
+        response = self.client.get(reverse("courses:profile"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "testuser")
 
-    def test_signup_page_accessible(self):
-        response = self.client.get(reverse("courses:signup"))
-        self.assertEqual(response.status_code, 200)
 

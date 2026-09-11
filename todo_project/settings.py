@@ -136,3 +136,8 @@ LOGIN_URL = 'courses:signin'
 LOGIN_REDIRECT_URL = 'courses:dashboard'
 LOGOUT_REDIRECT_URL = 'courses:signin'
 
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+

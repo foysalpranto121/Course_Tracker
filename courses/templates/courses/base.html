@@ -61,8 +61,12 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown ms-lg-2">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1.5 bg-white bg-opacity-10 text-white rounded-pill px-3 py-1.5" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-circle"></i>
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 bg-white bg-opacity-10 text-white rounded-pill px-3 py-1.5" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" width="26" height="26" class="rounded-circle object-fit-cover border border-white">
+                                {% else %}
+                                    <i class="bi bi-person-circle fs-5"></i>
+                                {% endif %}
                                 <span class="fw-medium">{{ user.username }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3" aria-labelledby="userDropdown">
@@ -73,12 +77,19 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'courses:profile' %}">
+                                        <i class="bi bi-person-gear text-primary"></i> My Profile
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="{% url 'courses:signout' %}">
                                         <i class="bi bi-box-arrow-right"></i> Sign Out
                                     </a>
                                 </li>
                             </ul>
                         </li>
+
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'courses:signin' %}">

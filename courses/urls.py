@@ -6,10 +6,12 @@ app_name = "courses"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
 
-    # Auth routes
+    # Auth & Profile routes
     path("signup/", views.signup_view, name="signup"),
     path("signin/", views.signin_view, name="signin"),
     path("signout/", views.signout_view, name="signout"),
+    path("profile/", views.profile_view, name="profile"),
+
 
     # Course routes
     path("courses/", views.course_list, name="course_list"),

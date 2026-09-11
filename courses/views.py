@@ -6,14 +6,57 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 
-from .forms import CourseForm, SignInForm, SignUpForm, TaskForm
-from .models import Course
+from .forms import (
+    CourseForm,
+    ProfileUpdateForm,
+    SignInForm,
+    SignUpForm,
+    TaskForm,
+    UserUpdateForm,
+)
+from .models import Course, UserProfile
 from .utils import (
     export_courses_to_excel,
     generate_duplicates_excel,
     generate_sample_template,
     import_courses_from_excel,
 )
+
+
+@login_required
+def profile_view(request):
+    """
+    Handles user profile viewing and updating, including profile picture uploads.
+    """
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, "Your profile has been updated successfully!")
+            return redirect("courses:profile")
+        else:
+            messages.error(request, "Please correct the errors in your profile details.")
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+
+    total_courses = Course.objects.count()
+    completed_courses = Course.objects.filter(status="completed").count()
+
+    context = {
+        "u_form": u_form,
+        "p_form": p_form,
+        "profile": profile,
+        "total_courses": total_courses,
+        "completed_courses": completed_courses,
+    }
+    return render(request, "courses/profile.html", context)
+
 
 
 def signup_view(request):
