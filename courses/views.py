@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Avg
+from django.db.models import Avg, Q
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
@@ -141,7 +142,60 @@ def dashboard(request):
 
 @login_required
 def course_list(request):
-    course_qs = Course.objects.all().order_by("-created_at")
+    course_qs = Course.objects.all()
+
+    # Search query parameter using Q object
+    search_query = request.GET.get("q", "").strip()
+    if search_query:
+        course_qs = course_qs.filter(
+            Q(title__icontains=search_query)
+            | Q(instructor__icontains=search_query)
+            | Q(category__icontains=search_query)
+            | Q(description__icontains=search_query)
+        )
+
+    # Status filter
+    status_filter = request.GET.get("status", "").strip()
+    if status_filter in ["not_started", "in_progress", "completed"]:
+        course_qs = course_qs.filter(status=status_filter)
+
+    # Category filter
+    category_filter = request.GET.get("category", "").strip()
+    if category_filter:
+        course_qs = course_qs.filter(category__iexact=category_filter)
+
+    # Ordering / sorting
+    ordering = request.GET.get("ordering", "-created_at").strip()
+    valid_orderings = {
+        "-created_at": "-created_at",
+        "created_at": "created_at",
+        "title": "title",
+        "-title": "-title",
+        "-progress": "-progress",
+        "progress": "progress",
+    }
+    sort_field = valid_orderings.get(ordering, "-created_at")
+    course_qs = course_qs.order_by(sort_field)
+
+    # Distinct categories for dropdown menu
+    available_categories = (
+        Course.objects.exclude(category="")
+        .values_list("category", flat=True)
+        .distinct()
+        .order_by("category")
+    )
+
+    # Build querystring for pagination preservation
+    query_params = request.GET.copy()
+    if "page" in query_params:
+        del query_params["page"]
+    encoded_querystring = query_params.urlencode()
+    if encoded_querystring:
+        encoded_querystring = "&" + encoded_querystring
+
+    total_filtered_count = course_qs.count()
+
+    # Pagination (8 per page)
     paginator = Paginator(course_qs, 8)
     page_number = request.GET.get("page", 1)
 
@@ -156,12 +210,28 @@ def course_list(request):
         page_obj.number, on_each_side=1, on_ends=1
     )
 
+    is_filtered = bool(
+        search_query
+        or status_filter
+        or category_filter
+        or (ordering and ordering != "-created_at")
+    )
+
     context = {
         "courses": page_obj,
         "page_obj": page_obj,
         "page_range": page_range,
+        "search_query": search_query,
+        "status_filter": status_filter,
+        "category_filter": category_filter,
+        "ordering": ordering,
+        "available_categories": available_categories,
+        "encoded_querystring": encoded_querystring,
+        "is_filtered": is_filtered,
+        "total_filtered_count": total_filtered_count,
     }
     return render(request, "courses/course_list.html", context)
+
 
 
 

@@ -45,5 +45,31 @@ class CourseUrlTests(TestCase):
         self.assertEqual(response_page2.status_code, 200)
         self.assertEqual(len(response_page2.context["page_obj"]), 4)
 
+    def test_course_list_search_q_objects_and_filtering(self):
+        user = User.objects.create_user(username="testuser3", password="password123")
+        self.client.login(username="testuser3", password="password123")
+        from .models import Course
+        Course.objects.create(title="Django Web Development", instructor="John Doe", category="Python", status="completed")
+        Course.objects.create(title="React Frontend", instructor="Jane Smith", category="JavaScript", status="in_progress")
+        Course.objects.create(title="Advanced Python Scripting", instructor="John Doe", category="Python", status="not_started")
+
+        # Test Q search query
+        res_search = self.client.get(reverse("courses:course_list") + "?q=Django")
+        self.assertEqual(res_search.status_code, 200)
+        self.assertEqual(len(res_search.context["page_obj"]), 1)
+        self.assertEqual(res_search.context["page_obj"][0].title, "Django Web Development")
+
+        # Test status filter
+        res_status = self.client.get(reverse("courses:course_list") + "?status=completed")
+        self.assertEqual(res_status.status_code, 200)
+        self.assertEqual(len(res_status.context["page_obj"]), 1)
+        self.assertEqual(res_status.context["page_obj"][0].status, "completed")
+
+        # Test category filter
+        res_cat = self.client.get(reverse("courses:course_list") + "?category=Python")
+        self.assertEqual(res_cat.status_code, 200)
+        self.assertEqual(len(res_cat.context["page_obj"]), 2)
+
+
 
 
