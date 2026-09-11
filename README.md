@@ -1,4 +1,4 @@
-# 🎓 Course Tracker & Task Manager
+# 🤖 AI Course Tracker & Task Manager
 
 [![Django](https://img.shields.io/badge/Django-5.0%2B-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)

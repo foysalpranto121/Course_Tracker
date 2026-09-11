@@ -166,7 +166,7 @@ body {
 }
 
 /* ==========================================
-   AI ASSISTANT STYLING
+   AI ASSISTANT CUTE PINK & BLUISH THEME
    ========================================== */
 
 /* Floating Action Button (FAB) */
@@ -174,25 +174,33 @@ body {
     position: fixed;
     bottom: 25px;
     right: 25px;
-    width: 58px;
-    height: 58px;
+    width: 62px;
+    height: 62px;
     z-index: 1050;
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45) !important;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%) !important;
+    border: 3px solid #ffffff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 10px 28px rgba(236, 72, 153, 0.45), 0 0 15px rgba(59, 130, 246, 0.3) !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    animation: cuteFloat 3s ease-in-out infinite;
 }
 
 .ai-fab-btn:hover {
-    transform: scale(1.12) rotate(4deg);
-    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6) !important;
+    transform: scale(1.15) rotate(6deg) !important;
+    box-shadow: 0 14px 35px rgba(236, 72, 153, 0.65), 0 0 22px rgba(59, 130, 246, 0.5) !important;
+}
+
+@keyframes cuteFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
 }
 
 .ai-fab-badge {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 13px;
-    height: 13px;
+    top: 3px;
+    right: 3px;
+    width: 14px;
+    height: 14px;
     background-color: #10b981;
     border: 2px solid #ffffff;
     border-radius: 50%;
@@ -201,66 +209,118 @@ body {
 /* Pulsing Status Dot */
 .pulse-dot {
     display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #10b981;
+    width: 9px;
+    height: 9px;
+    background-color: #34d399;
     border-radius: 50%;
-    box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
-    animation: pulseAnimation 2s infinite;
+    box-shadow: 0 0 0 rgba(52, 211, 153, 0.4);
+    animation: cutePulse 2s infinite;
 }
 
-@keyframes pulseAnimation {
-    0% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-    }
+@keyframes cutePulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.8); }
+    70% { box-shadow: 0 0 0 9px rgba(52, 211, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
 }
 
-/* Offcanvas Drawer */
+/* Cute Offcanvas Drawer */
 .ai-offcanvas {
     width: 420px !important;
     max-width: 92vw;
-    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-top-left-radius: 28px !important;
+    border-bottom-left-radius: 28px !important;
+    overflow: hidden;
+    border-left: 2px solid rgba(244, 114, 182, 0.3) !important;
+    box-shadow: -10px 0 40px rgba(236, 72, 153, 0.15) !important;
 }
 
+.ai-header-gradient {
+    background: linear-gradient(135deg, #f43f5e 0%, #a855f7 50%, #0284c7 100%) !important;
+    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.25);
+}
+
+.ai-drawer-body {
+    background: linear-gradient(180deg, #fdf2f8 0%, #f0f9ff 100%) !important;
+}
+
+/* Welcome Card */
 .ai-welcome-card {
-    border-left: 4px solid #3b82f6;
+    border-radius: 20px !important;
+    border: 2px solid #f472b6 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.1) !important;
 }
 
+/* Cute Suggestion Pills */
 .pill-prompt {
     font-size: 0.78rem;
-    padding: 0.25rem 0.65rem;
-    transition: all 0.2s ease;
+    font-weight: 600;
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px !important;
+    border: 1.5px solid #f472b6 !important;
+    color: #db2777 !important;
+    background-color: #ffffff !important;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .pill-prompt:hover {
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #ec4899 0%, #3b82f6 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3) !important;
 }
 
-/* Chat Messages */
+/* Chat Messages Stream */
 .ai-chat-messages {
     max-height: calc(100vh - 280px);
 }
 
-.ai-msg-bubble {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    word-break: break-word;
-}
-
 .ai-msg-assistant .ai-msg-bubble {
-    border-top-left-radius: 2px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e0e7ff !important;
+    color: #1e1b4b !important;
+    border-radius: 20px !important;
+    border-top-left-radius: 4px !important;
+    box-shadow: 0 4px 16px rgba(236, 72, 153, 0.08) !important;
 }
 
 .ai-msg-user .ai-msg-bubble {
-    border-top-right-radius: 2px !important;
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%) !important;
+    color: #ffffff !important;
+    border-radius: 20px !important;
+    border-top-right-radius: 4px !important;
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3) !important;
 }
 
-.ai-msg-bubble code {
-    font-size: 0.82rem;
+.ai-msg-avatar {
+    background: linear-gradient(135deg, #f43f5e 0%, #3b82f6 100%) !important;
+    box-shadow: 0 3px 10px rgba(244, 63, 94, 0.3);
+}
+
+/* Input Form & Buttons */
+.ai-input-pill {
+    border-radius: 30px !important;
+    border: 2px solid #f472b6 !important;
+    background: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(244, 114, 182, 0.15) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ai-input-pill:focus-within {
+    border-color: #ec4899 !important;
+    box-shadow: 0 6px 24px rgba(236, 72, 153, 0.3) !important;
+}
+
+.ai-send-btn {
+    background: linear-gradient(135deg, #ec4899 0%, #3b82f6 100%) !important;
+    border: none !important;
+    border-radius: 50px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.ai-send-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4) !important;
 }

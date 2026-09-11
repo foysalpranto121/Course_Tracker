@@ -123,7 +123,7 @@ class SignUpView(View):
             login(request, user)
             messages.success(
                 request,
-                f"Welcome to Course Tracker, {user.username}! Your account has been created successfully.",
+                f"Welcome to AI Course Tracker, {user.username}! Your account has been created successfully.",
             )
             return redirect("courses:dashboard")
         return render(request, self.template_name, {"form": form})

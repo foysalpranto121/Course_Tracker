@@ -263,7 +263,7 @@ def generate_assistant_response(user, prompt):
     openai_key = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
 
     system_prompt = (
-        f"You are an AI Learning Assistant for Course Tracker.\n"
+        f"You are an AI Learning Assistant for AI Course Tracker.\n"
         f"User Name: {context['user_name']}\n"
         f"User Learning Goal: {context['profile'].get('learning_goal', 'Master coursework')}\n"
         f"Context:\n{json.dumps(context, indent=2)}\n\n"
