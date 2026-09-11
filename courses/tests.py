@@ -12,6 +12,13 @@ class CourseUrlTests(TestCase):
         self.assertEqual(reverse("courses:course_list"), "/courses/")
         self.assertEqual(resolve("/courses/").view_name, "courses:course_list")
 
+    def test_cbv_classes_used(self):
+        from .views import DashboardView, CourseListView, ProfileView
+        self.assertEqual(resolve("/").func.view_class, DashboardView)
+        self.assertEqual(resolve("/courses/").func.view_class, CourseListView)
+        self.assertEqual(resolve("/profile/").func.view_class, ProfileView)
+
+
     def test_profile_url_resolves(self):
         self.assertEqual(reverse("courses:profile"), "/profile/")
         self.assertEqual(resolve("/profile/").view_name, "courses:profile")
