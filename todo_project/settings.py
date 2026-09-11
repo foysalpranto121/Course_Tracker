@@ -153,3 +153,29 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
+# ==========================================
+# SESSION STORAGE CONFIGURATION
+# ==========================================
+# 1. Session Storage Engine Options:
+# - 'django.contrib.sessions.backends.db' (Default: Database backed)
+# - 'django.contrib.sessions.backends.cache' (In-Memory Cache backed)
+# - 'django.contrib.sessions.backends.cached_db' (Cache + Database persistent, recommended for speed & persistence)
+# - 'django.contrib.sessions.backends.file' (File-system backed)
+# - 'django.contrib.sessions.backends.signed_cookies' (Encrypted Cookie backed)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# 2. Session Cookie Expiration (14 days in seconds)
+SESSION_COOKIE_AGE = 1209600  
+
+# 3. Session Expiry on Browser Close (False = persistent, True = expires when browser closes)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  
+
+# 4. Save Session on Every Request (Updates session expiration on each interaction)
+SESSION_SAVE_EVERY_REQUEST = True  
+
+# 5. Security Settings for Session Cookies
+SESSION_COOKIE_HTTPONLY = True  # Prevents client-side JS access to session cookie
+SESSION_COOKIE_NAME = 'sessionid'
+
+
