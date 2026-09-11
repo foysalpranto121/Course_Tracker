@@ -29,6 +29,9 @@ urlpatterns = [
         views.TaskCreateView.as_view(),
         name="task_create"
     ),
+
+    # AI Assistant route
+    path("ai-assistant/", views.AIAssistantView.as_view(), name="ai_assistant"),
 ]
 
 

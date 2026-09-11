@@ -1,9 +1,10 @@
+import json
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Avg, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
@@ -427,4 +428,35 @@ class DownloadDuplicatesView(LoginRequiredMixin, View):
             'attachment; filename="duplicate_courses_report.xlsx"'
         )
         return response
+
+
+class AIAssistantView(LoginRequiredMixin, View):
+    """
+    AJAX endpoint for the AI Assistant floating chat widget.
+    Processes user prompts and returns context-aware AI guidance.
+    """
+
+    def post(self, request, *args, **kwargs):
+        from .ai_service import generate_assistant_response
+
+        try:
+            body = json.loads(request.body.decode("utf-8")) if request.body else {}
+            prompt = body.get("prompt", "").strip()
+        except Exception:
+            prompt = request.POST.get("prompt", "").strip()
+
+        if not prompt:
+            return JsonResponse(
+                {"status": "error", "message": "Prompt cannot be empty."},
+                status=400
+            )
+
+        try:
+            reply = generate_assistant_response(request.user, prompt)
+            return JsonResponse({"status": "success", "reply": reply})
+        except Exception as e:
+            return JsonResponse(
+                {"status": "error", "message": f"An error occurred: {str(e)}"},
+                status=500
+            )
 

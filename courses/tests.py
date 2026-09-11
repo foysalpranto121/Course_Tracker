@@ -111,6 +111,44 @@ class CourseUrlTests(TestCase):
         course.refresh_from_db()
         self.assertEqual(course.progress, 100)
 
+    def test_ai_assistant_url_resolves(self):
+        self.assertEqual(reverse("courses:ai_assistant"), "/ai-assistant/")
+        self.assertEqual(resolve("/ai-assistant/").view_name, "courses:ai_assistant")
+
+    def test_ai_assistant_requires_login(self):
+        response = self.client.post(reverse("courses:ai_assistant"), {"prompt": "Hello"})
+        # GlobalAuthCheckMiddleware redirects unauthenticated requests
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/signin/", response.url)
+
+    def test_ai_assistant_post_success(self):
+        user = User.objects.create_user(username="aiuser", password="password123")
+        self.client.login(username="aiuser", password="password123")
+
+        response = self.client.post(
+            reverse("courses:ai_assistant"),
+            data='{"prompt": "Summarize my progress"}',
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(json_data["status"], "success")
+        self.assertIn("Learning Progress Summary", json_data["reply"])
+
+    def test_ai_assistant_empty_prompt_validation(self):
+        user = User.objects.create_user(username="aiuser2", password="password123")
+        self.client.login(username="aiuser2", password="password123")
+
+        response = self.client.post(
+            reverse("courses:ai_assistant"),
+            data='{"prompt": ""}',
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 400)
+        json_data = response.json()
+        self.assertEqual(json_data["status"], "error")
+        self.assertIn("cannot be empty", json_data["message"])
+
 
 
 

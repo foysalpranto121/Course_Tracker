@@ -149,6 +149,90 @@
         </div>
     </footer>
 
+    {% if user.is_authenticated %}
+        <!-- AI Assistant Floating Action Button (FAB) -->
+        <button id="aiFabBtn" class="btn btn-primary ai-fab-btn shadow-lg d-flex align-items-center justify-content-center gap-2 rounded-circle" type="button" data-bs-toggle="offcanvas" data-bs-target="#aiAssistantOffcanvas" aria-controls="aiAssistantOffcanvas" title="Ask AI Learning Assistant">
+            <i class="bi bi-robot fs-4"></i>
+            <span class="ai-fab-badge"></span>
+        </button>
+
+        <!-- AI Assistant Offcanvas Drawer -->
+        <div class="offcanvas offcanvas-end ai-offcanvas shadow" tabindex="-1" id="aiAssistantOffcanvas" aria-labelledby="aiAssistantOffcanvasLabel">
+            <div class="offcanvas-header text-white bg-dark border-bottom border-secondary d-flex align-items-center justify-content-between py-3 px-4">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="ai-avatar-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <i class="bi bi-magic fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="offcanvas-title fw-bold mb-0 text-white" id="aiAssistantOffcanvasLabel">AI Learning Assistant</h6>
+                        <small class="text-success d-flex align-items-center gap-1">
+                            <span class="pulse-dot"></span> Active Context Engine
+                        </small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <div class="offcanvas-body d-flex flex-column bg-light p-3">
+                <!-- Welcome Card & Quick Suggestion Pills -->
+                <div class="ai-welcome-card p-3 mb-3 rounded-3 bg-white shadow-sm border">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-stars text-warning fs-5"></i>
+                        <span class="fw-semibold text-dark">Hi {{ user.username }}, how can I help you today?</span>
+                    </div>
+                    <p class="small text-muted mb-2">Tap a suggestion below or ask any question:</p>
+                    <div class="d-flex flex-wrap gap-1.5 ai-suggestion-pills">
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill pill-prompt" data-prompt="Summarize my progress">
+                            📊 Summarize Progress
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill pill-prompt" data-prompt="What tasks are due soon?">
+                            ⏰ Urgent Tasks
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill pill-prompt" data-prompt="Generate a 7-day study plan">
+                            🗓️ 7-Day Study Plan
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill pill-prompt" data-prompt="Quiz me on my courses">
+                            🧩 Practice Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Stream -->
+                <div id="aiChatMessages" class="ai-chat-messages flex-grow-1 overflow-y-auto mb-3 pe-1">
+                    <!-- Default Intro Message -->
+                    <div class="ai-msg ai-msg-assistant mb-3 d-flex gap-2">
+                        <div class="ai-msg-avatar bg-primary text-white rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="ai-msg-bubble bg-white p-3 rounded-3 shadow-sm border text-dark">
+                            Welcome! I'm your AI Learning Assistant. I have access to your active courses and upcoming tasks. Ask me anything or click a quick option above!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div id="aiTypingIndicator" class="ai-typing-indicator d-none mb-3 text-muted small d-flex align-items-center gap-2 ps-2">
+                    <i class="bi bi-robot text-primary"></i>
+                    <span>AI Assistant is thinking...</span>
+                    <div class="spinner-border spinner-border-sm text-primary ms-1" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Chat Input Form -->
+                <form id="aiChatForm" class="mt-auto">
+                    {% csrf_token %}
+                    <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border">
+                        <input type="text" id="aiChatInput" class="form-field border-0 px-3.5 py-2.5 small" placeholder="Ask AI assistant..." required autocomplete="off">
+                        <button class="btn btn-primary px-3 d-flex align-items-center justify-content-center" type="submit" id="aiSubmitBtn">
+                            <i class="bi bi-send-fill fs-6"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
 
     <!-- Bootstrap JavaScript -->
     <script
@@ -157,6 +241,116 @@
 
     <!-- Custom JavaScript -->
     <script src="{% static 'courses/js/app.js' %}"></script>
+
+    {% if user.is_authenticated %}
+    <!-- AI Assistant Interactive Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const chatForm = document.getElementById("aiChatForm");
+            const chatInput = document.getElementById("aiChatInput");
+            const chatMessages = document.getElementById("aiChatMessages");
+            const typingIndicator = document.getElementById("aiTypingIndicator");
+            const submitBtn = document.getElementById("aiSubmitBtn");
+            const suggestionPills = document.querySelectorAll(".pill-prompt");
+
+            function scrollToBottom() {
+                if (chatMessages) {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            }
+
+            function formatMarkdown(text) {
+                if (!text) return "";
+                let html = text
+                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                    .replace(/### (.*?)\n/g, '<h6 class="fw-bold mt-2 mb-1 text-primary">$1</h6>')
+                    .replace(/#### (.*?)\n/g, '<strong class="d-block mt-2 mb-1 text-dark">$1</strong>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`([^`]+)`/g, '<code class="bg-light px-1 py-0.5 rounded text-danger">$1</code>')
+                    .replace(/- (.*?)\n/g, '• $1<br>')
+                    .replace(/\n/g, '<br>');
+                return html;
+            }
+
+            function appendMessage(sender, text) {
+                const isUser = sender === "user";
+                const msgDiv = document.createElement("div");
+                msgDiv.className = `ai-msg ai-msg-${sender} mb-3 d-flex gap-2 ${isUser ? "justify-content-end" : ""}`;
+
+                if (!isUser) {
+                    msgDiv.innerHTML = `
+                        <div class="ai-msg-avatar bg-primary text-white rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="ai-msg-bubble bg-white p-3 rounded-3 shadow-sm border text-dark flex-grow-1">
+                            ${formatMarkdown(text)}
+                        </div>
+                    `;
+                } else {
+                    msgDiv.innerHTML = `
+                        <div class="ai-msg-bubble bg-primary text-white p-2.5 px-3 rounded-3 shadow-sm" style="max-width: 80%;">
+                            ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                        </div>
+                    `;
+                }
+
+                chatMessages.appendChild(msgDiv);
+                scrollToBottom();
+            }
+
+            async function sendPrompt(promptText) {
+                if (!promptText.trim()) return;
+
+                appendMessage("user", promptText);
+                chatInput.value = "";
+                typingIndicator.classList.remove("d-none");
+                submitBtn.disabled = true;
+                scrollToBottom();
+
+                try {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || "";
+                    const response = await fetch("{% url 'courses:ai_assistant' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrfToken,
+                        },
+                        body: JSON.stringify({ prompt: promptText }),
+                    });
+
+                    const data = await response.json();
+                    typingIndicator.classList.add("d-none");
+                    submitBtn.disabled = false;
+
+                    if (response.ok && data.status === "success") {
+                        appendMessage("assistant", data.reply);
+                    } else {
+                        appendMessage("assistant", "⚠️ " + (data.message || "Something went wrong. Please try again."));
+                    }
+                } catch (err) {
+                    typingIndicator.classList.add("d-none");
+                    submitBtn.disabled = false;
+                    appendMessage("assistant", "⚠️ Connection error: Could not reach AI service.");
+                }
+            }
+
+            if (chatForm) {
+                chatForm.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    sendPrompt(chatInput.value);
+                });
+            }
+
+            suggestionPills.forEach(pill => {
+                pill.addEventListener("click", function () {
+                    const prompt = this.getAttribute("data-prompt");
+                    sendPrompt(prompt);
+                });
+            });
+        });
+    </script>
+    {% endif %}
 
 </body>
 </html>

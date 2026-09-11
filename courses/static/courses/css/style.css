@@ -164,3 +164,103 @@ body {
     border-radius: 14px;
     border: 2px dashed #cbd5e1;
 }
+
+/* ==========================================
+   AI ASSISTANT STYLING
+   ========================================== */
+
+/* Floating Action Button (FAB) */
+.ai-fab-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 58px;
+    height: 58px;
+    z-index: 1050;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.ai-fab-btn:hover {
+    transform: scale(1.12) rotate(4deg);
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6) !important;
+}
+
+.ai-fab-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 13px;
+    height: 13px;
+    background-color: #10b981;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+}
+
+/* Pulsing Status Dot */
+.pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+    animation: pulseAnimation 2s infinite;
+}
+
+@keyframes pulseAnimation {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* Offcanvas Drawer */
+.ai-offcanvas {
+    width: 420px !important;
+    max-width: 92vw;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ai-welcome-card {
+    border-left: 4px solid #3b82f6;
+}
+
+.pill-prompt {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.65rem;
+    transition: all 0.2s ease;
+}
+
+.pill-prompt:hover {
+    transform: translateY(-1px);
+}
+
+/* Chat Messages */
+.ai-chat-messages {
+    max-height: calc(100vh - 280px);
+}
+
+.ai-msg-bubble {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.ai-msg-assistant .ai-msg-bubble {
+    border-top-left-radius: 2px !important;
+}
+
+.ai-msg-user .ai-msg-bubble {
+    border-top-right-radius: 2px !important;
+}
+
+.ai-msg-bubble code {
+    font-size: 0.82rem;
+}
