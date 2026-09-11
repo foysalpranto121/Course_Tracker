@@ -28,7 +28,7 @@
     <!-- Custom CSS -->
     <link
         rel="stylesheet"
-        href="{% static 'courses/css/style.css' %}"
+        href="{% static 'courses/css/style.css' %}?v=1.2"
     >
 </head>
 
@@ -149,89 +149,92 @@
         </div>
     </footer>
 
-    {% if user.is_authenticated %}
-        <!-- Cute AI Assistant Floating Action Button (FAB) -->
-        <button id="aiFabBtn" class="btn ai-fab-btn shadow-lg d-flex align-items-center justify-content-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#aiAssistantOffcanvas" aria-controls="aiAssistantOffcanvas" title="Ask AI Learning Assistant">
-            <i class="bi bi-stars fs-4 text-white"></i>
-            <span class="ai-fab-badge"></span>
-        </button>
+    <!-- Cute AI Assistant Floating Action Button (FAB) -->
+    <button id="aiFabBtn" class="btn ai-fab-btn shadow-lg d-flex align-items-center justify-content-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#aiAssistantOffcanvas" aria-controls="aiAssistantOffcanvas" title="Ask AI Learning Assistant" style="position: fixed !important; bottom: 30px !important; right: 30px !important; width: 64px !important; height: 64px !important; z-index: 99999 !important; background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%) !important; border: 3px solid #ffffff !important; border-radius: 50% !important; box-shadow: 0 10px 30px rgba(236, 72, 153, 0.5) !important; cursor: pointer !important;">
+        <i class="bi bi-stars fs-3 text-white"></i>
+        <span class="ai-fab-badge" style="position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; background-color: #10b981; border: 2px solid #ffffff; border-radius: 50%;"></span>
+    </button>
 
-        <!-- Cute Pink & Bluish AI Assistant Offcanvas Drawer -->
-        <div class="offcanvas offcanvas-end ai-offcanvas shadow-lg" tabindex="-1" id="aiAssistantOffcanvas" aria-labelledby="aiAssistantOffcanvasLabel">
-            <div class="offcanvas-header text-white ai-header-gradient d-flex align-items-center justify-content-between py-3 px-4">
-                <div class="d-flex align-items-center gap-2.5">
-                    <div class="ai-msg-avatar rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px;">
-                        <i class="bi bi-chat-heart-fill fs-5"></i>
-                    </div>
-                    <div>
-                        <h6 class="offcanvas-title fw-bold mb-0 text-white" id="aiAssistantOffcanvasLabel">AI Learning Assistant</h6>
-                        <small class="text-white opacity-90 d-flex align-items-center gap-1.5 fs-7">
-                            <span class="pulse-dot"></span> Online & Active
-                        </small>
-                    </div>
+    <!-- Cute Pink & Bluish AI Assistant Offcanvas Drawer -->
+    <div class="offcanvas offcanvas-end ai-offcanvas shadow-lg" tabindex="-1" id="aiAssistantOffcanvas" aria-labelledby="aiAssistantOffcanvasLabel">
+        <div class="offcanvas-header text-white ai-header-gradient d-flex align-items-center justify-content-between py-3 px-4">
+            <div class="d-flex align-items-center gap-2.5">
+                <div class="ai-msg-avatar rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px;">
+                    <i class="bi bi-chat-heart-fill fs-5"></i>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <div>
+                    <h6 class="offcanvas-title fw-bold mb-0 text-white" id="aiAssistantOffcanvasLabel">AI Learning Assistant</h6>
+                    <small class="text-white opacity-90 d-flex align-items-center gap-1.5 fs-7">
+                        <span class="pulse-dot"></span> Online & Active
+                    </small>
+                </div>
             </div>
-
-            <div class="offcanvas-body d-flex flex-column ai-drawer-body p-3.5">
-                <!-- Welcome Card & Quick Suggestion Pills -->
-                <div class="ai-welcome-card p-3 mb-3">
-                    <div class="d-flex align-items-center gap-2 mb-1.5">
-                        <i class="bi bi-heart-fill text-danger fs-6"></i>
-                        <span class="fw-bold text-dark">Hi {{ user.username }}! 💕</span>
-                    </div>
-                    <p class="small text-muted mb-2.5">What would you like me to do for you today?</p>
-                    <div class="d-flex flex-wrap gap-1.5 ai-suggestion-pills">
-                        <button type="button" class="btn btn-sm pill-prompt" data-prompt="Summarize my progress">
-                            📊 Summarize Progress
-                        </button>
-                        <button type="button" class="btn btn-sm pill-prompt" data-prompt="What tasks are due soon?">
-                            ⏰ Urgent Tasks
-                        </button>
-                        <button type="button" class="btn btn-sm pill-prompt" data-prompt="Generate a 7-day study plan">
-                            🗓️ 7-Day Study Plan
-                        </button>
-                        <button type="button" class="btn btn-sm pill-prompt" data-prompt="Quiz me on my courses">
-                            🧩 Practice Quiz
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Chat Messages Stream -->
-                <div id="aiChatMessages" class="ai-chat-messages flex-grow-1 overflow-y-auto mb-3 pe-1">
-                    <!-- Default Intro Message -->
-                    <div class="ai-msg ai-msg-assistant mb-3 d-flex gap-2">
-                        <div class="ai-msg-avatar text-white rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px;">
-                            <i class="bi bi-robot fs-6"></i>
-                        </div>
-                        <div class="ai-msg-bubble p-3">
-                            Hello {{ user.username }}! ✨ I am your cute AI study assistant. I monitor your active courses and upcoming tasks. Tap an option above or send me a prompt!
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Typing Indicator -->
-                <div id="aiTypingIndicator" class="ai-typing-indicator d-none mb-3 text-pink small d-flex align-items-center gap-2 ps-2 fw-semibold" style="color: #ec4899;">
-                    <i class="bi bi-stars"></i>
-                    <span>AI Assistant is typing...</span>
-                    <div class="spinner-border spinner-border-sm text-danger ms-1" role="status" style="width: 1rem; height: 1rem;">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-
-                <!-- Cute Chat Input Form -->
-                <form id="aiChatForm" class="mt-auto">
-                    {% csrf_token %}
-                    <div class="input-group ai-input-pill p-1">
-                        <input type="text" id="aiChatInput" class="form-field border-0 px-3 py-2 small flex-grow-1 bg-transparent" placeholder="Ask your AI assistant..." required autocomplete="off">
-                        <button class="btn ai-send-btn text-white px-3.5 d-flex align-items-center justify-content-center" type="submit" id="aiSubmitBtn">
-                            <i class="bi bi-send-fill fs-6"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-    {% endif %}
+
+        <div class="offcanvas-body d-flex flex-column ai-drawer-body p-3.5">
+            <!-- Welcome Card & Quick Suggestion Pills -->
+            <div class="ai-welcome-card p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 mb-1.5">
+                    <i class="bi bi-heart-fill text-danger fs-6"></i>
+                    <span class="fw-bold text-dark">Hi {% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}! 💕</span>
+                </div>
+                <p class="small text-muted mb-2.5">What would you like me to do for you today?</p>
+                <div class="d-flex flex-wrap gap-1.5 ai-suggestion-pills">
+                    <button type="button" class="btn btn-sm pill-prompt" data-prompt="Summarize my progress">
+                        📊 Summarize Progress
+                    </button>
+                    <button type="button" class="btn btn-sm pill-prompt" data-prompt="What tasks are due soon?">
+                        ⏰ Urgent Tasks
+                    </button>
+                    <button type="button" class="btn btn-sm pill-prompt" data-prompt="Generate a 7-day study plan">
+                        🗓️ 7-Day Study Plan
+                    </button>
+                    <button type="button" class="btn btn-sm pill-prompt" data-prompt="Quiz me on my courses">
+                        🧩 Practice Quiz
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages Stream -->
+            <div id="aiChatMessages" class="ai-chat-messages flex-grow-1 overflow-y-auto mb-3 pe-1">
+                <!-- Default Intro Message -->
+                <div class="ai-msg ai-msg-assistant mb-3 d-flex gap-2">
+                    <div class="ai-msg-avatar text-white rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px;">
+                        <i class="bi bi-robot fs-6"></i>
+                    </div>
+                    <div class="ai-msg-bubble p-3">
+                        Hello {% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}! ✨ I am your cute AI study assistant. Ask me anything or tap an option above!
+                        {% if not user.is_authenticated %}
+                            <div class="mt-2 pt-2 border-top">
+                                <a href="{% url 'courses:signin' %}" class="btn btn-sm btn-primary rounded-pill px-3">Sign In for Full AI Features</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="aiTypingIndicator" class="ai-typing-indicator d-none mb-3 text-pink small d-flex align-items-center gap-2 ps-2 fw-semibold" style="color: #ec4899;">
+                <i class="bi bi-stars"></i>
+                <span>AI Assistant is typing...</span>
+                <div class="spinner-border spinner-border-sm text-danger ms-1" role="status" style="width: 1rem; height: 1rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Cute Chat Input Form -->
+            <form id="aiChatForm" class="mt-auto">
+                {% csrf_token %}
+                <div class="input-group ai-input-pill p-1">
+                    <input type="text" id="aiChatInput" class="form-field border-0 px-3 py-2 small flex-grow-1 bg-transparent" placeholder="Ask your AI assistant..." required autocomplete="off">
+                    <button class="btn ai-send-btn text-white px-3.5 d-flex align-items-center justify-content-center" type="submit" id="aiSubmitBtn">
+                        <i class="bi bi-send-fill fs-6"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
     <!-- Bootstrap JavaScript -->
@@ -242,7 +245,6 @@
     <!-- Custom JavaScript -->
     <script src="{% static 'courses/js/app.js' %}"></script>
 
-    {% if user.is_authenticated %}
     <!-- AI Assistant Interactive Logic -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -325,8 +327,10 @@
 
                     if (response.ok && data.status === "success") {
                         appendMessage("assistant", data.reply);
+                    } else if (response.status === 302 || response.redirected) {
+                        appendMessage("assistant", "🔒 Please <a href='{% url 'courses:signin' %}'>Sign In</a> to access full AI assistant features.");
                     } else {
-                        appendMessage("assistant", "⚠️ " + (data.message || "Something went wrong. Please try again."));
+                        appendMessage("assistant", "⚠️ " + (data.message || "Please sign in to access AI assistant features."));
                     }
                 } catch (err) {
                     typingIndicator.classList.add("d-none");
@@ -350,7 +354,5 @@
             });
         });
     </script>
-    {% endif %}
-
 </body>
 </html>
