@@ -6,6 +6,12 @@ app_name = "courses"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
 
+    # Auth routes
+    path("signup/", views.signup_view, name="signup"),
+    path("signin/", views.signin_view, name="signin"),
+    path("signout/", views.signout_view, name="signout"),
+
+    # Course routes
     path("courses/", views.course_list, name="course_list"),
     path("courses/create/", views.course_create, name="course_create"),
     path("courses/export/", views.course_export, name="course_export"),
@@ -21,4 +27,5 @@ urlpatterns = [
         views.task_create,
         name="task_create"
     ),
-]
+]
+

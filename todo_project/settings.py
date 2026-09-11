@@ -130,3 +130,9 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Authentication URLs
+LOGIN_URL = 'courses:signin'
+LOGIN_REDIRECT_URL = 'courses:dashboard'
+LOGOUT_REDIRECT_URL = 'courses:signin'
+

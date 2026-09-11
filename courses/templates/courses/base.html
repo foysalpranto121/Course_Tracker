@@ -48,19 +48,52 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'courses:dashboard' %}">
-                            <i class="bi bi-speedometer2 me-1.5"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'courses:course_list' %}">
-                            <i class="bi bi-journal-bookmark me-1.5"></i> Courses
-                        </a>
-                    </li>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-1">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'courses:dashboard' %}">
+                                <i class="bi bi-speedometer2 me-1.5"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item me-lg-2">
+                            <a class="nav-link" href="{% url 'courses:course_list' %}">
+                                <i class="bi bi-journal-bookmark me-1.5"></i> Courses
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1.5 bg-white bg-opacity-10 text-white rounded-pill px-3 py-1.5" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                                <span class="fw-medium">{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3" aria-labelledby="userDropdown">
+                                <li>
+                                    <div class="dropdown-header text-muted">
+                                        Signed in as <strong>{{ user.username }}</strong>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="{% url 'courses:signout' %}">
+                                        <i class="bi bi-box-arrow-right"></i> Sign Out
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'courses:signin' %}">
+                                <i class="bi bi-box-arrow-in-right me-1.5"></i> Sign In
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-1">
+                            <a class="btn btn-sm btn-outline-light rounded-pill px-3 py-1.5 fw-semibold" href="{% url 'courses:signup' %}">
+                                <i class="bi bi-person-plus me-1"></i> Sign Up
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
+
 
         </div>
     </nav>

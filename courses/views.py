@@ -1,10 +1,12 @@
 from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 
-from .forms import CourseForm, TaskForm
+from .forms import CourseForm, SignInForm, SignUpForm, TaskForm
 from .models import Course
 from .utils import (
     export_courses_to_excel,
@@ -14,6 +16,65 @@ from .utils import (
 )
 
 
+def signup_view(request):
+    """
+    Handles user registration/signup.
+    """
+    if request.user.is_authenticated:
+        return redirect("courses:dashboard")
+
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(
+                request,
+                f"Welcome to Course Tracker, {user.username}! Your account has been created successfully.",
+            )
+            return redirect("courses:dashboard")
+    else:
+        form = SignUpForm()
+
+    return render(request, "courses/signup.html", {"form": form})
+
+
+def signin_view(request):
+    """
+    Handles user authentication/signin.
+    """
+    if request.user.is_authenticated:
+        return redirect("courses:dashboard")
+
+    next_url = request.GET.get("next", "") or request.POST.get("next", "")
+
+    if request.method == "POST":
+        form = SignInForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f"Welcome back, {user.username}!")
+            if next_url:
+                return redirect(next_url)
+            return redirect("courses:dashboard")
+        else:
+            messages.error(request, "Invalid username or password. Please try again.")
+    else:
+        form = SignInForm()
+
+    return render(request, "courses/signin.html", {"form": form, "next": next_url})
+
+
+def signout_view(request):
+    """
+    Handles user logout.
+    """
+    logout(request)
+    messages.info(request, "You have been signed out successfully.")
+    return redirect("courses:signin")
+
+
+@login_required
 def dashboard(request):
     courses = Course.objects.all().order_by("-created_at")[:5]
     total_courses = Course.objects.count()
@@ -33,11 +94,13 @@ def dashboard(request):
     return render(request, "courses/dashboard.html", context)
 
 
+@login_required
 def course_list(request):
     courses = Course.objects.all()
     return render(request, "courses/course_list.html", {"courses": courses})
 
 
+@login_required
 def course_create(request):
     if request.method == "POST":
         form = CourseForm(request.POST)
@@ -50,11 +113,13 @@ def course_create(request):
     return render(request, "courses/course_form.html", {"form": form})
 
 
+@login_required
 def course_detail(request, pk):
     course = get_object_or_404(Course, pk=pk)
     return render(request, "courses/course_detail.html", {"course": course})
 
 
+@login_required
 def course_update(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == "POST":
@@ -68,6 +133,7 @@ def course_update(request, pk):
     return render(request, "courses/course_form.html", {"form": form, "course": course})
 
 
+@login_required
 def course_delete(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == "POST":
@@ -77,6 +143,7 @@ def course_delete(request, pk):
     return render(request, "courses/course_confirm_delete.html", {"course": course})
 
 
+@login_required
 def task_create(request, course_pk):
     course = get_object_or_404(Course, pk=course_pk)
 
@@ -100,6 +167,7 @@ def task_create(request, course_pk):
     )
 
 
+@login_required
 def course_export(request):
     """
     Exports courses to Excel (.xlsx) file.
@@ -113,6 +181,7 @@ def course_export(request):
     return response
 
 
+@login_required
 def course_export_template(request):
     """
     Downloads sample Excel template for courses import.
@@ -126,6 +195,7 @@ def course_export_template(request):
     return response
 
 
+@login_required
 def course_import(request):
     """
     Handles Excel sheet upload for import with duplicate detection, tracking & updating.
@@ -176,6 +246,7 @@ def course_import(request):
     return redirect("courses:course_list")
 
 
+@login_required
 def download_duplicates(request):
     """
     Generates and downloads Excel sheet of duplicate records tracked during the last import.
@@ -187,12 +258,9 @@ def download_duplicates(request):
 
     dup_bytes = generate_duplicates_excel(duplicate_rows)
 
-    # Optionally keep or clear session duplicate records
-    # request.session.pop("duplicate_rows", None)
-
     response = HttpResponse(
         dup_bytes,
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     response["Content-Disposition"] = 'attachment; filename="duplicate_courses_report.xlsx"'
-    return response
+    return response
