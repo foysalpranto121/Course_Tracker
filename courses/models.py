@@ -38,6 +38,7 @@ class Course(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     instructor = models.CharField(max_length=100, blank=True)
+    instructor_email = models.EmailField(blank=True, null=True, help_text="Email of the course instructor")
     category = models.CharField(max_length=100, blank=True)
 
     start_date = models.DateField(null=True, blank=True)

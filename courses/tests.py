@@ -169,6 +169,32 @@ class CourseUrlTests(TestCase):
         self.assertEqual(json_data["status"], "error")
         self.assertIn("cannot be empty", json_data["message"])
 
+    def test_instructor_email_notification_on_course_completion(self):
+        from django.core import mail
+        from .models import Course
+        user = User.objects.create_user(username="student1", password="password123")
+        course = Course.objects.create(
+            user=user,
+            title="Django Advanced Masterclass",
+            instructor="Prof. Smith",
+            instructor_email="prof.smith@university.edu",
+            progress=50,
+            status="in_progress"
+        )
+        self.assertEqual(len(mail.outbox), 0)
+
+        # Mark course as completed
+        course.progress = 100
+        course.save()
+
+        # Check mail was sent to instructor_email
+        self.assertEqual(len(mail.outbox), 1)
+        sent_email = mail.outbox[0]
+        self.assertIn("prof.smith@university.edu", sent_email.to)
+        self.assertIn("Course Completion Notice: Django Advanced Masterclass", sent_email.subject)
+        self.assertIn("student1", sent_email.body)
+
+
 
 
 

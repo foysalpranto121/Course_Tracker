@@ -96,6 +96,7 @@ class CourseForm(forms.ModelForm):
             "title",
             "description",
             "instructor",
+            "instructor_email",
             "category",
             "start_date",
             "end_date",
@@ -116,6 +117,10 @@ class CourseForm(forms.ModelForm):
             "instructor": forms.TextInput(attrs={
                 "class": "form-control",
                 "placeholder": "Instructor name",
+            }),
+            "instructor_email": forms.EmailInput(attrs={
+                "class": "form-control",
+                "placeholder": "instructor@example.com",
             }),
             "category": forms.TextInput(attrs={
                 "class": "form-control",

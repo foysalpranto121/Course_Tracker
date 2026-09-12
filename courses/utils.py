@@ -24,6 +24,7 @@ def export_courses_to_excel(queryset=None, user=None):
             "ID": course.id,
             "Title": course.title,
             "Instructor": course.instructor or "",
+            "Instructor Email": course.instructor_email or "",
             "Category": course.category or "",
             "Description": course.description or "",
             "Start Date": course.start_date.strftime("%Y-%m-%d") if course.start_date else "",
@@ -37,7 +38,7 @@ def export_courses_to_excel(queryset=None, user=None):
     
     if df.empty:
         df = pd.DataFrame(columns=[
-            "ID", "Title", "Instructor", "Category", "Description", 
+            "ID", "Title", "Instructor", "Instructor Email", "Category", "Description", 
             "Start Date", "End Date", "Progress (%)", "Status", "Created At"
         ])
 
@@ -148,6 +149,8 @@ def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
             col_map[col] = "title"
         elif c_clean in ("instructor", "instructor name", "teacher"):
             col_map[col] = "instructor"
+        elif c_clean in ("instructor email", "instructoremail", "email", "instructor_email"):
+            col_map[col] = "instructor_email"
         elif c_clean in ("category", "subject"):
             col_map[col] = "category"
         elif c_clean in ("description", "desc", "details"):
@@ -198,6 +201,10 @@ def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
         if instructor.lower() == "nan":
             instructor = ""
 
+        instructor_email = str(row.get("instructor_email", "")) if not pd.isna(row.get("instructor_email")) else ""
+        if instructor_email.lower() == "nan":
+            instructor_email = ""
+
         category = str(row.get("category", "")) if not pd.isna(row.get("category")) else ""
         if category.lower() == "nan":
             category = ""
@@ -229,6 +236,7 @@ def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
                     "Excel Row": row_num,
                     "Title": raw_title,
                     "Instructor": instructor,
+                    "Instructor Email": instructor_email,
                     "Category": category,
                     "Description": description,
                     "Start Date": start_date.strftime("%Y-%m-%d") if start_date else "",
@@ -243,6 +251,7 @@ def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
                 if existing_course:
                     existing_course.description = description
                     existing_course.instructor = instructor
+                    existing_course.instructor_email = instructor_email
                     existing_course.category = category
                     if start_date:
                         existing_course.start_date = start_date
@@ -260,6 +269,7 @@ def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
                         title=raw_title,
                         description=description,
                         instructor=instructor,
+                        instructor_email=instructor_email,
                         category=category,
                         start_date=start_date,
                         end_date=end_date,
@@ -276,6 +286,7 @@ def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
                 title=raw_title,
                 description=description,
                 instructor=instructor,
+                instructor_email=instructor_email,
                 category=category,
                 start_date=start_date,
                 end_date=end_date,
@@ -306,7 +317,7 @@ def generate_duplicates_excel(duplicate_rows):
     df = pd.DataFrame(duplicate_rows)
     if df.empty:
         df = pd.DataFrame(columns=[
-            "Excel Row", "Title", "Instructor", "Category", "Description",
+            "Excel Row", "Title", "Instructor", "Instructor Email", "Category", "Description",
             "Start Date", "End Date", "Progress (%)", "Status", "Duplicate Reason"
         ])
 
@@ -326,6 +337,7 @@ def generate_sample_template():
         {
             "Title": "Full-Stack Python & Django Masterclass",
             "Instructor": "Dr. Angela Yu",
+            "Instructor Email": "angela@example.com",
             "Category": "Web Development",
             "Description": "Learn full-stack development with Python 3, Django 5, PostgreSQL, and REST APIs.",
             "Start Date": "2026-09-01",
@@ -336,6 +348,7 @@ def generate_sample_template():
         {
             "Title": "Data Analysis & Machine Learning with Pandas",
             "Instructor": "Jose Portilla",
+            "Instructor Email": "jose@example.com",
             "Category": "Data Science",
             "Description": "Comprehensive guide to pandas, numpy, scikit-learn, and data visualization.",
             "Start Date": "2026-10-01",
@@ -346,6 +359,7 @@ def generate_sample_template():
         {
             "Title": "UI/UX Design Essentials in Figma",
             "Instructor": "Daniel Walter Scott",
+            "Instructor Email": "daniel@example.com",
             "Category": "Design",
             "Description": "Master modern UI design principles, responsive web layouts, and interactive prototypes.",
             "Start Date": "2026-08-01",

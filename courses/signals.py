@@ -1,7 +1,10 @@
 import logging
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 from .models import Course, Task, UserProfile
 
@@ -21,13 +24,14 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.get_or_create(user=instance)
 
 
-# 2. PRE_SAVE Signal for Course Status Auto-Sync
+# 2. PRE_SAVE Signal for Course Status Auto-Sync & Instructor Email Notification
 @receiver(pre_save, sender=Course)
 def auto_sync_course_status(sender, instance, **kwargs):
     """
     Automatically synchronizes Course.status based on Course.progress:
     - progress >= 100 -> status = 'completed'
     - 0 < progress < 100 -> status = 'in_progress' (unless explicitly set)
+    Sends automated completion email to instance.instructor_email if newly completed.
     """
     if instance.progress >= 100:
         instance.status = "completed"
@@ -35,6 +39,45 @@ def auto_sync_course_status(sender, instance, **kwargs):
     elif instance.progress > 0 and instance.status != "completed":
         instance.status = "in_progress"
         logger.info(f"Signal (pre_save): Course '{instance.title}' progress > 0, status set to 'in_progress'")
+
+    # Send completion notification email to instructor if newly completed
+    if instance.status == "completed" and instance.instructor_email:
+        already_completed = False
+        if instance.pk:
+            prev = Course.objects.filter(pk=instance.pk).first()
+            if prev and prev.status == "completed":
+                already_completed = True
+
+        if not already_completed:
+            student_name = (
+                instance.user.get_full_name() or instance.user.username
+                if instance.user
+                else "A student"
+            )
+            subject = f"🎉 Course Completion Notice: {instance.title}"
+            message = (
+                f"Hello,\n\n"
+                f"This is an automated notification from AI Course Tracker.\n\n"
+                f"Student '{student_name}' has successfully completed 100% of your course: '{instance.title}'.\n\n"
+                f"Course Details:\n"
+                f"- Title: {instance.title}\n"
+                f"- Category: {instance.category or 'General'}\n"
+                f"- Status: Completed\n"
+                f"- Completion Time: {timezone.now().strftime('%Y-%m-%d %H:%M')}\n\n"
+                f"Best regards,\n"
+                f"AI Course Tracker Platform"
+            )
+            try:
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@coursetracker.com"),
+                    recipient_list=[instance.instructor_email],
+                    fail_silently=True,
+                )
+                logger.info(f"Completion email sent to instructor '{instance.instructor_email}' for course '{instance.title}'")
+            except Exception as e:
+                logger.error(f"Failed to send completion email to '{instance.instructor_email}': {e}")
 
 
 # 3. POST_SAVE & POST_DELETE Signals for Task -> Course Progress Auto-Calculation
