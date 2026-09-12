@@ -40,38 +40,42 @@ def auto_sync_course_status(sender, instance, **kwargs):
         instance.status = "in_progress"
         logger.info(f"Signal (pre_save): Course '{instance.title}' progress > 0, status set to 'in_progress'")
 
-    # Send completion notification email to instructor if newly completed
+    # Send completion notification email to instructor if newly completed or email added
     if instance.status == "completed" and instance.instructor_email:
-        already_completed = False
+        already_notified = False
         if instance.pk:
             prev = Course.objects.filter(pk=instance.pk).first()
-            if prev and prev.status == "completed":
-                already_completed = True
+            if prev and prev.status == "completed" and prev.instructor_email == instance.instructor_email:
+                already_notified = True
 
-        if not already_completed:
+        if not already_notified:
             student_name = (
                 instance.user.get_full_name() or instance.user.username
                 if instance.user
                 else "A student"
             )
-            subject = f"🎉 Course Completion Notice: {instance.title}"
+            student_email = instance.user.email if (instance.user and instance.user.email) else "Not provided"
+            subject = f"🎓 Course Completion Notice: {instance.title}"
             message = (
-                f"Hello,\n\n"
-                f"This is an automated notification from AI Course Tracker.\n\n"
-                f"Student '{student_name}' has successfully completed 100% of your course: '{instance.title}'.\n\n"
-                f"Course Details:\n"
+                f"Dear Instructor,\n\n"
+                f"This is an official automated completion notice from the AI Course Tracker platform.\n\n"
+                f"Student Details:\n"
+                f"- Name: {student_name}\n"
+                f"- Student Email: {student_email}\n\n"
+                f"Course Summary:\n"
                 f"- Title: {instance.title}\n"
                 f"- Category: {instance.category or 'General'}\n"
-                f"- Status: Completed\n"
-                f"- Completion Time: {timezone.now().strftime('%Y-%m-%d %H:%M')}\n\n"
+                f"- Progress: 100% Completed\n"
+                f"- Completion Date: {timezone.now().strftime('%B %d, %Y at %H:%M UTC')}\n\n"
+                f"Thank you for guiding the student!\n\n"
                 f"Best regards,\n"
-                f"AI Course Tracker Platform"
+                f"AI Course Tracker System"
             )
             try:
                 send_mail(
                     subject=subject,
                     message=message,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@coursetracker.com"),
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
                     recipient_list=[instance.instructor_email],
                     fail_silently=True,
                 )

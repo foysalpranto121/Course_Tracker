@@ -474,4 +474,61 @@ class AIAssistantView(LoginRequiredMixin, View):
                 {"status": "error", "message": f"An error occurred: {str(e)}"},
                 status=500
             )
+
+
+class SendInstructorEmailView(LoginRequiredMixin, View):
+    """
+    Manually triggers sending course completion notification email to the instructor.
+    """
+
+    def post(self, request, pk, *args, **kwargs):
+        from django.conf import settings
+        from django.core.mail import send_mail
+        from django.utils import timezone
+
+        course = get_object_or_404(Course, pk=pk, user=request.user)
+
+        if not course.instructor_email:
+            messages.error(
+                request,
+                "This course does not have an instructor email set. Please edit the course to add an instructor email address."
+            )
+            return redirect("courses:course_detail", pk=course.pk)
+
+        student_name = request.user.get_full_name() or request.user.username
+        student_email = request.user.email or "Not provided"
+        subject = f"🎓 Course Completion Notice: {course.title}"
+        message = (
+            f"Dear Instructor,\n\n"
+            f"This is an official automated completion notice from the AI Course Tracker platform.\n\n"
+            f"Student Details:\n"
+            f"- Name: {student_name}\n"
+            f"- Student Email: {student_email}\n\n"
+            f"Course Summary:\n"
+            f"- Title: {course.title}\n"
+            f"- Category: {course.category or 'General'}\n"
+            f"- Progress: 100% Completed\n"
+            f"- Completion Date: {timezone.now().strftime('%B %d, %Y at %H:%M UTC')}\n\n"
+            f"Thank you for guiding the student!\n\n"
+            f"Best regards,\n"
+            f"AI Course Tracker System"
+        )
+
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                recipient_list=[course.instructor_email],
+                fail_silently=False,
+            )
+            messages.success(
+                request,
+                f"Completion notification email successfully sent to instructor ({course.instructor_email})!"
+            )
+        except Exception as e:
+            messages.error(request, f"Failed to send email to {course.instructor_email}: {str(e)}")
+
+        return redirect("courses:course_detail", pk=course.pk)
+
 

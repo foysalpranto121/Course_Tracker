@@ -22,6 +22,7 @@ urlpatterns = [
     path("courses/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
     path("courses/<int:pk>/edit/", views.CourseUpdateView.as_view(), name="course_update"),
     path("courses/<int:pk>/delete/", views.CourseDeleteView.as_view(), name="course_delete"),
+    path("courses/<int:pk>/send-instructor-email/", views.SendInstructorEmailView.as_view(), name="send_instructor_email"),
 
     # Task CBV route
     path(

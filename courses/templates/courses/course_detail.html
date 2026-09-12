@@ -32,6 +32,15 @@
     </div>
 
     <div class="d-flex gap-2">
+        {% if course.instructor_email %}
+            <form method="POST" action="{% url 'courses:send_instructor_email' course.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-info rounded-pill px-3 shadow-sm" title="Send completion notification email to instructor">
+                    <i class="bi bi-envelope-paper me-1"></i> Email Instructor
+                </button>
+            </form>
+        {% endif %}
+
         <a
             href="{% url 'courses:course_update' course.pk %}"
             class="btn btn-outline-warning rounded-pill px-3 shadow-sm"
