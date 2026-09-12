@@ -174,7 +174,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # - 'django.contrib.sessions.backends.file' (File-system backed)
 # - 'django.contrib.sessions.backends.signed_cookies' (Encrypted Cookie backed)
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # 2. Session Cookie Expiration (14 days in seconds)
 SESSION_COOKIE_AGE = 1209600  

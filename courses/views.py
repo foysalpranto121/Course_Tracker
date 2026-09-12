@@ -514,20 +514,18 @@ class SendInstructorEmailView(LoginRequiredMixin, View):
             f"AI Course Tracker System"
         )
 
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                recipient_list=[course.instructor_email],
-                fail_silently=False,
-            )
-            messages.success(
-                request,
-                f"Completion notification email successfully sent to instructor ({course.instructor_email})!"
-            )
-        except Exception as e:
-            messages.error(request, f"Failed to send email to {course.instructor_email}: {str(e)}")
+        from .signals import send_email_async
+
+        send_email_async(
+            subject=subject,
+            message=message,
+            from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+            recipient_list=[course.instructor_email],
+        )
+        messages.success(
+            request,
+            f"Completion notification email queued & sending to instructor ({course.instructor_email})!"
+        )
 
         return redirect("courses:course_detail", pk=course.pk)
 

@@ -1,4 +1,5 @@
 import logging
+import threading
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -9,6 +10,30 @@ from django.utils import timezone
 from .models import Course, Task, UserProfile
 
 logger = logging.getLogger(__name__)
+
+
+def send_email_async(subject, message, from_email, recipient_list):
+    """
+    Dispatches email notification asynchronously in a background thread
+    so HTTP request cycles remain lightning fast (0ms latency for browser).
+    """
+    def _send():
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=from_email,
+                recipient_list=recipient_list,
+                fail_silently=True,
+            )
+            logger.info(f"Async completion email dispatched to {recipient_list}")
+        except Exception as e:
+            logger.error(f"Async email sending failed for {recipient_list}: {e}")
+
+    t = threading.Thread(target=_send, daemon=True)
+    t.start()
+    if getattr(settings, "EMAIL_BACKEND", "").endswith("locmem.EmailBackend"):
+        t.join(timeout=2)
 
 
 # 1. POST_SAVE Signal for User Profile Creation
@@ -71,17 +96,13 @@ def auto_sync_course_status(sender, instance, **kwargs):
                 f"Best regards,\n"
                 f"AI Course Tracker System"
             )
-            try:
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    recipient_list=[instance.instructor_email],
-                    fail_silently=True,
-                )
-                logger.info(f"Completion email sent to instructor '{instance.instructor_email}' for course '{instance.title}'")
-            except Exception as e:
-                logger.error(f"Failed to send completion email to '{instance.instructor_email}': {e}")
+            send_email_async(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                recipient_list=[instance.instructor_email],
+            )
+            logger.info(f"Async completion email queued for instructor '{instance.instructor_email}'")
 
 
 # 3. POST_SAVE & POST_DELETE Signals for Task -> Course Progress Auto-Calculation
