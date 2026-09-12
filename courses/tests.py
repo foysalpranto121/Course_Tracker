@@ -41,7 +41,7 @@ class CourseUrlTests(TestCase):
         self.client.login(username="testuser2", password="password123")
         from .models import Course
         for i in range(12):
-            Course.objects.create(title=f"Course {i}")
+            Course.objects.create(user=user, title=f"Course {i}")
 
         response = self.client.get(reverse("courses:course_list"))
         self.assertEqual(response.status_code, 200)
@@ -56,9 +56,9 @@ class CourseUrlTests(TestCase):
         user = User.objects.create_user(username="testuser3", password="password123")
         self.client.login(username="testuser3", password="password123")
         from .models import Course
-        Course.objects.create(title="Django Web Development", instructor="John Doe", category="Python", status="completed")
-        Course.objects.create(title="React Frontend", instructor="Jane Smith", category="JavaScript", status="in_progress")
-        Course.objects.create(title="Advanced Python Scripting", instructor="John Doe", category="Python", status="not_started")
+        Course.objects.create(user=user, title="Django Web Development", instructor="John Doe", category="Python", status="completed")
+        Course.objects.create(user=user, title="React Frontend", instructor="Jane Smith", category="JavaScript", status="in_progress")
+        Course.objects.create(user=user, title="Advanced Python Scripting", instructor="John Doe", category="Python", status="not_started")
 
         # Test Q search query
         res_search = self.client.get(reverse("courses:course_list") + "?q=Django")
@@ -76,6 +76,26 @@ class CourseUrlTests(TestCase):
         res_cat = self.client.get(reverse("courses:course_list") + "?category=Python")
         self.assertEqual(res_cat.status_code, 200)
         self.assertEqual(len(res_cat.context["page_obj"]), 2)
+
+    def test_user_course_isolation(self):
+        from .models import Course
+        user1 = User.objects.create_user(username="user1", password="password123")
+        user2 = User.objects.create_user(username="user2", password="password123")
+
+        course1 = Course.objects.create(user=user1, title="User 1 Course")
+        course2 = Course.objects.create(user=user2, title="User 2 Course")
+
+        # Log in as user1
+        self.client.login(username="user1", password="password123")
+        response = self.client.get(reverse("courses:course_list"))
+        self.assertEqual(response.status_code, 200)
+        courses_in_view = response.context["page_obj"].object_list
+        self.assertIn(course1, courses_in_view)
+        self.assertNotIn(course2, courses_in_view)
+
+        # user1 attempting to access user2's course detail should get 404
+        detail_response = self.client.get(reverse("courses:course_detail", kwargs={"pk": course2.pk}))
+        self.assertEqual(detail_response.status_code, 404)
 
     def test_performance_timing_middleware_header(self):
         response = self.client.get(reverse("courses:signin"))
@@ -148,6 +168,7 @@ class CourseUrlTests(TestCase):
         json_data = response.json()
         self.assertEqual(json_data["status"], "error")
         self.assertIn("cannot be empty", json_data["message"])
+
 
 
 

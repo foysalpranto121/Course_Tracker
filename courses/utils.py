@@ -7,13 +7,16 @@ from django.db.models import Q
 
 from .models import Course
 
-def export_courses_to_excel(queryset=None):
+def export_courses_to_excel(queryset=None, user=None):
     """
     Exports a queryset of Course objects to an Excel spreadsheet (.xlsx).
     Returns raw bytes of the generated Excel file.
     """
     if queryset is None:
-        queryset = Course.objects.all().order_by("-created_at")
+        if user is not None:
+            queryset = Course.objects.filter(user=user).order_by("-created_at")
+        else:
+            queryset = Course.objects.all().order_by("-created_at")
 
     data = []
     for course in queryset:
@@ -106,7 +109,7 @@ def clean_progress(val):
         return 0
 
 
-def import_courses_from_excel(file_obj, duplicate_action="skip"):
+def import_courses_from_excel(file_obj, duplicate_action="skip", user=None):
     """
     Imports courses from an uploaded Excel (.xlsx, .xls) or CSV file.
     duplicate_action: 'skip' or 'update'
@@ -207,7 +210,11 @@ def import_courses_from_excel(file_obj, duplicate_action="skip"):
         title_lower = raw_title.lower()
 
         # Check existing database record
-        existing_course = Course.objects.filter(title__iexact=raw_title).first()
+        if user is not None:
+            existing_course = Course.objects.filter(user=user, title__iexact=raw_title).first()
+        else:
+            existing_course = Course.objects.filter(title__iexact=raw_title).first()
+            
         is_duplicate_in_file = title_lower in seen_titles_in_file
         is_duplicate = (existing_course is not None) or is_duplicate_in_file
 
@@ -249,6 +256,7 @@ def import_courses_from_excel(file_obj, duplicate_action="skip"):
                 else:
                     # Duplicate within file only, update/create latest row
                     existing_course = Course.objects.create(
+                        user=user,
                         title=raw_title,
                         description=description,
                         instructor=instructor,
@@ -264,6 +272,7 @@ def import_courses_from_excel(file_obj, duplicate_action="skip"):
         # New non-duplicate course creation
         try:
             Course.objects.create(
+                user=user,
                 title=raw_title,
                 description=description,
                 instructor=instructor,

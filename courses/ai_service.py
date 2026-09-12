@@ -29,7 +29,7 @@ def get_user_context(user):
         logger.warning(f"Could not load user profile: {e}")
 
     # Courses context
-    courses = Course.objects.all()
+    courses = Course.objects.filter(user=user)
     total_courses = courses.count()
     completed_courses = courses.filter(status="completed").count()
     in_progress_courses = courses.filter(status="in_progress").count()
@@ -46,7 +46,7 @@ def get_user_context(user):
         })
 
     # Tasks context
-    pending_tasks = Task.objects.filter(completed=False)
+    pending_tasks = Task.objects.filter(course__user=user, completed=False)
     total_pending_tasks = pending_tasks.count()
     today = timezone.now().date()
     overdue_tasks = pending_tasks.filter(due_date__lt=today).count()

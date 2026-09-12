@@ -40,12 +40,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        courses = Course.objects.all().order_by("-created_at")[:5]
-        total_courses = Course.objects.count()
-        active_courses = Course.objects.exclude(status="completed").count()
-        completed_courses = Course.objects.filter(status="completed").count()
+        user_courses = Course.objects.filter(user=self.request.user)
+        courses = user_courses.order_by("-created_at")[:5]
+        total_courses = user_courses.count()
+        active_courses = user_courses.exclude(status="completed").count()
+        completed_courses = user_courses.filter(status="completed").count()
 
-        avg_progress = Course.objects.aggregate(avg=Avg("progress"))["avg"]
+        avg_progress = user_courses.aggregate(avg=Avg("progress"))["avg"]
         overall_progress = int(round(avg_progress)) if avg_progress is not None else 0
 
         context.update(
@@ -68,8 +69,8 @@ class ProfileView(LoginRequiredMixin, View):
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=profile)
 
-        total_courses = Course.objects.count()
-        completed_courses = Course.objects.filter(status="completed").count()
+        total_courses = Course.objects.filter(user=request.user).count()
+        completed_courses = Course.objects.filter(user=request.user, status="completed").count()
 
         context = {
             "u_form": u_form,
@@ -92,8 +93,8 @@ class ProfileView(LoginRequiredMixin, View):
             return redirect("courses:profile")
 
         messages.error(request, "Please correct the errors in your profile details.")
-        total_courses = Course.objects.count()
-        completed_courses = Course.objects.filter(status="completed").count()
+        total_courses = Course.objects.filter(user=request.user).count()
+        completed_courses = Course.objects.filter(user=request.user, status="completed").count()
 
         context = {
             "u_form": u_form,
@@ -175,7 +176,7 @@ class CourseListView(LoginRequiredMixin, ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = Course.objects.filter(user=self.request.user)
 
         search_query = self.request.GET.get("q", "").strip()
         if search_query:
@@ -221,7 +222,8 @@ class CourseListView(LoginRequiredMixin, ListView):
         ordering = self.request.GET.get("ordering", "-created_at").strip()
 
         available_categories = (
-            Course.objects.exclude(category="")
+            Course.objects.filter(user=self.request.user)
+            .exclude(category="")
             .values_list("category", flat=True)
             .distinct()
             .order_by("category")
@@ -262,6 +264,10 @@ class CourseCreateView(LoginRequiredMixin, CreateView):
     form_class = CourseForm
     template_name = "courses/course_form.html"
 
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse("courses:course_detail", kwargs={"pk": self.object.pk})
 
@@ -271,11 +277,17 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
     template_name = "courses/course_detail.html"
     context_object_name = "course"
 
+    def get_queryset(self):
+        return Course.objects.filter(user=self.request.user)
+
 
 class CourseUpdateView(LoginRequiredMixin, UpdateView):
     model = Course
     form_class = CourseForm
     template_name = "courses/course_form.html"
+
+    def get_queryset(self):
+        return Course.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -292,6 +304,9 @@ class CourseDeleteView(LoginRequiredMixin, DeleteView):
     context_object_name = "course"
     success_url = reverse_lazy("courses:course_list")
 
+    def get_queryset(self):
+        return Course.objects.filter(user=self.request.user)
+
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
@@ -299,7 +314,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     template_name = "courses/task_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.course = get_object_or_404(Course, pk=self.kwargs["course_pk"])
+        self.course = get_object_or_404(Course, pk=self.kwargs["course_pk"], user=request.user)
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -325,7 +340,7 @@ class CourseExportView(LoginRequiredMixin, View):
     """
 
     def get(self, request, *args, **kwargs):
-        excel_bytes = export_courses_to_excel()
+        excel_bytes = export_courses_to_excel(user=request.user)
         response = HttpResponse(
             excel_bytes,
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -365,7 +380,7 @@ class CourseImportView(LoginRequiredMixin, View):
             return redirect("courses:course_list")
 
         result = import_courses_from_excel(
-            excel_file, duplicate_action=duplicate_action
+            excel_file, duplicate_action=duplicate_action, user=request.user
         )
 
         created = result["created"]
