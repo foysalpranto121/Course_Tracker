@@ -165,15 +165,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # ==========================================
-# IN-MEMORY CACHING CONFIGURATION (LocMemCache)
+# DATABASE CACHING CONFIGURATION (DatabaseCache)
 # ==========================================
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'course_tracker_in_memory_cache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache_table',
         'TIMEOUT': 300,  # 5 minutes default cache timeout
         'OPTIONS': {
-            'MAX_ENTRIES': 1000  # Max 1000 cached items in RAM
+            'MAX_ENTRIES': 2000
         }
     }
 }
