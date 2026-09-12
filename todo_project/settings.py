@@ -165,6 +165,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # ==========================================
+# IN-MEMORY CACHING CONFIGURATION (LocMemCache)
+# ==========================================
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'course_tracker_in_memory_cache',
+        'TIMEOUT': 300,  # 5 minutes default cache timeout
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000  # Max 1000 cached items in RAM
+        }
+    }
+}
+
+
+# ==========================================
 # SESSION STORAGE CONFIGURATION
 # ==========================================
 # 1. Session Storage Engine Options:
