@@ -953,3 +953,119 @@ body {
         transform: none;
     }
 }
+
+
+/* ============================================================
+   MOBILE NAVIGATION
+
+   Bootstrap ships two toggler icons and picks the dark-stroke one
+   unless the navbar declares a dark theme. On this navy navbar that
+   icon was invisible, so the menu button could not be seen or found
+   and the auth actions were unreachable below the lg breakpoint.
+   ============================================================ */
+
+.custom-navbar .navbar-toggler {
+    padding: 0.45rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(148, 163, 184, 0.12);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.custom-navbar .navbar-toggler:hover {
+    background: rgba(148, 163, 184, 0.22);
+    border-color: rgba(148, 163, 184, 0.5);
+}
+
+.custom-navbar .navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.35);
+}
+
+/* White strokes, so the control reads against the dark bar. */
+.custom-navbar .navbar-toggler-icon {
+    width: 1.4em;
+    height: 1.4em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ---------- Collapsed menu (below the lg breakpoint) ---------- */
+
+@media (max-width: 991.98px) {
+
+    .custom-navbar .navbar-collapse {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .custom-navbar .navbar-nav {
+        gap: 0.2rem !important;
+        padding-bottom: 0.35rem;
+    }
+
+    /* Comfortable tap targets: each row clears the 44px guideline. */
+    .custom-navbar .nav-link {
+        padding: 0.75rem 0.9rem !important;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+
+    .custom-navbar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Separate the auth actions from the plain navigation links. */
+    .custom-navbar .nav-item-cta:first-of-type {
+        margin-top: 0.6rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .custom-navbar .nav-item-cta + .nav-item-cta {
+        margin-top: 0.5rem;
+    }
+
+    /* Pill buttons stretch to the full menu width when stacked. */
+    .custom-navbar .nav-cta {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
+        font-size: 0.95rem;
+    }
+
+    /* Signed-in user control and its menu. */
+    .custom-navbar .nav-user-pill {
+        justify-content: center;
+        padding-top: 0.7rem !important;
+        padding-bottom: 0.7rem !important;
+        border-radius: 999px;
+    }
+
+    .custom-navbar .dropdown-menu {
+        width: 100%;
+        margin-top: 0.5rem;
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35) !important;
+    }
+
+    .custom-navbar .dropdown-item {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+    }
+}
+
+/* Above the breakpoint the pill keeps its original compact height. */
+@media (min-width: 992px) {
+    .custom-navbar .nav-user-pill {
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+    }
+
+    .custom-navbar .nav-cta {
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+    }
+}
