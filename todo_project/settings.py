@@ -75,11 +75,11 @@ MIDDLEWARE.extend([
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Custom Application Middlewares
-    'courses.middleware.GlobalAuthCheckMiddleware',  # 2. Global Authentication Check
-    'courses.middleware.RequestResponseLoggingMiddleware',  # 3. Request & Response Logging
-    'courses.middleware.LanguageAndSessionManagementMiddleware',  # 4. Language & Session Management
-    'courses.middleware.PerformanceTimingMiddleware',  # 5. Performance Timing
+    'courses.middleware.RequestResponseLoggingMiddleware',  # 1. Request & Response Logging
+    'courses.middleware.LanguageAndSessionManagementMiddleware',  # 2. Language & Session Management
+    'courses.middleware.PerformanceTimingMiddleware',  # 3. Performance Timing
 ])
+
 
 # Configurable Blocked IPs list (for IPBlockingMiddleware)
 BLOCKED_IPS = [
