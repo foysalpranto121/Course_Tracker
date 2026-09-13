@@ -38,7 +38,13 @@ from .utils import (
 class LandingPageView(TemplateView):
     template_name = "courses/landing.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("courses:dashboard")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
         total_courses_count = Course.objects.count()
         total_users_count = User.objects.count()
