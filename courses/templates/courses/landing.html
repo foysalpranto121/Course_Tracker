@@ -6,8 +6,10 @@
 {% endblock %}
 
 
-{#  The hero renders in the full-bleed slot defined in base.html so it runs
-    edge to edge, rather than sitting inside the narrow page container.  #}
+{% comment %}
+    The hero renders in the full-bleed slot defined in base.html so it runs
+    edge to edge, rather than sitting inside the narrow page container.
+{% endcomment %}
 {% block hero %}
 <section class="lp-hero">
     <div class="lp-hero__grid-lines" aria-hidden="true"></div>
@@ -140,9 +142,11 @@
 
 {% block content %}
 
-{#  Live platform figures. Rendered only once there is something real to
-    report, so the page never advertises placeholder numbers.  #}
-{% if total_courses_count or total_tasks_count or total_users_count %}
+{% comment %}
+    Live platform figures. Shown only once at least one course exists, so the
+    page never advertises a wall of zeros or invented placeholder numbers.
+{% endcomment %}
+{% if total_courses_count %}
     <section class="lp-section pt-0">
         <div class="lp-stats">
             <div class="lp-stat">

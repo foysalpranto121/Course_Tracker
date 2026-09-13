@@ -429,7 +429,7 @@ body {
 
 .lp-hero__layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
     gap: clamp(2.5rem, 5vw, 4rem);
     align-items: center;
 }
@@ -458,9 +458,9 @@ body {
 }
 
 .lp-title {
-    font-size: clamp(2.25rem, 5.2vw, 3.75rem);
+    font-size: clamp(2.1rem, 4.1vw, 3.25rem);
     font-weight: 800;
-    line-height: 1.08;
+    line-height: 1.1;
     letter-spacing: -0.03em;
     color: #ffffff;
     margin: 1.5rem 0 0;
