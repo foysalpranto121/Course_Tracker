@@ -39,7 +39,10 @@ class GlobalAuthCheckMiddleware(MiddlewareMixin):
     Automatically redirects unauthenticated requests away from protected routes.
     """
 
-    EXEMPT_URLS = [
+    EXEMPT_EXACT_URLS = ["/"]
+    EXEMPT_PREFIX_URLS = [
+        "/landing/",
+        "/guest-signin/",
         "/signin/",
         "/signup/",
         "/admin/",
@@ -50,11 +53,15 @@ class GlobalAuthCheckMiddleware(MiddlewareMixin):
     def process_request(self, request):
         if not request.user.is_authenticated:
             path = request.path_info
-            if not any(path.startswith(url) for url in self.EXEMPT_URLS):
+            is_exempt = path in self.EXEMPT_EXACT_URLS or any(
+                path.startswith(url) for url in self.EXEMPT_PREFIX_URLS
+            )
+            if not is_exempt:
                 messages.warning(request, "Please sign in to access this page.")
                 return redirect(f"/signin/?next={path}")
 
         return None
+
 
 
 class RequestResponseLoggingMiddleware(MiddlewareMixin):

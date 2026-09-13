@@ -35,8 +35,155 @@ from .utils import (
 )
 
 
+class LandingPageView(TemplateView):
+    template_name = "courses/landing.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        total_courses_count = Course.objects.count()
+        total_users_count = User.objects.count()
+        total_tasks_count = Task.objects.count()
+
+        context.update(
+            {
+                "total_courses_count": total_courses_count,
+                "total_users_count": total_users_count,
+                "total_tasks_count": total_tasks_count,
+            }
+        )
+        return context
+
+
+class GuestSignInView(View):
+    def get(self, request, *args, **kwargs):
+        return self.login_guest(request)
+
+    def post(self, request, *args, **kwargs):
+        return self.login_guest(request)
+
+    def login_guest(self, request):
+        guest_username = "guest_demo"
+        user, created = User.objects.get_or_create(
+            username=guest_username,
+            defaults={
+                "first_name": "Guest",
+                "last_name": "Explorer",
+                "email": "guest@example.com",
+            },
+        )
+        if created:
+            user.set_unusable_password()
+            user.save()
+
+        # Ensure user profile exists
+        profile, _ = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                "institution": "Open Learning Lab",
+                "occupation": "Guest Explorer",
+                "learning_goal": "Explore AI Course Tracker features",
+                "bio": "I am exploring the live demo environment of AI Course Tracker.",
+            },
+        )
+
+        # Seed initial sample data if guest user has no courses
+        if not Course.objects.filter(user=user).exists():
+            from datetime import timedelta
+            from django.utils import timezone
+            today = timezone.now().date()
+
+            c1 = Course.objects.create(
+                user=user,
+                title="Full-Stack Web Development with Django 5",
+                instructor="Dr. Angela Yu",
+                instructor_email="angela@example.com",
+                category="Web Development",
+                description="Master modern web app development, PostgreSQL database design, REST APIs, and Render deployment.",
+                start_date=today - timedelta(days=15),
+                end_date=today + timedelta(days=45),
+                progress=65,
+                status="in_progress",
+            )
+            Task.objects.create(
+                course=c1,
+                title="Complete PostgreSQL Database Schema Design",
+                description="Define models, primary keys, foreign keys, and indexes.",
+                due_date=today - timedelta(days=2),
+                completed=True,
+            )
+            Task.objects.create(
+                course=c1,
+                title="Build Interactive REST API Endpoints",
+                description="Implement serializers and viewsets for course models.",
+                due_date=today + timedelta(days=3),
+                completed=False,
+            )
+            Task.objects.create(
+                course=c1,
+                title="Deploy Web Service to Render",
+                description="Configure Gunicorn, WhiteNoise, build.sh, and render.yaml.",
+                due_date=today + timedelta(days=7),
+                completed=False,
+            )
+
+            c2 = Course.objects.create(
+                user=user,
+                title="Data Science & Machine Learning Essentials",
+                instructor="Jose Portilla",
+                instructor_email="jose@example.com",
+                category="Data Science",
+                description="Learn Python data analysis, pandas dataframes, numpy computations, and Excel import/export processing.",
+                start_date=today - timedelta(days=30),
+                end_date=today + timedelta(days=10),
+                progress=90,
+                status="in_progress",
+            )
+            Task.objects.create(
+                course=c2,
+                title="Clean and Filter Dataset using Pandas",
+                description="Handle missing values, duplicate rows, and date format parsing.",
+                due_date=today - timedelta(days=5),
+                completed=True,
+            )
+            Task.objects.create(
+                course=c2,
+                title="Export Formatted Analytics Report to Excel",
+                description="Generate .xlsx output with openpyxl engine.",
+                due_date=today + timedelta(days=1),
+                completed=False,
+            )
+
+            c3 = Course.objects.create(
+                user=user,
+                title="UI/UX Responsive Design in Bootstrap 5",
+                instructor="Daniel Walter Scott",
+                instructor_email="daniel@example.com",
+                category="Design",
+                description="Design modern glassmorphism web interfaces, dark themes, animated progress cards, and mobile layouts.",
+                start_date=today - timedelta(days=60),
+                end_date=today - timedelta(days=5),
+                progress=100,
+                status="completed",
+            )
+            Task.objects.create(
+                course=c3,
+                title="Build Dark Glassmorphic Dashboard Navbar",
+                description="Style translucent headers with subtle border glows.",
+                due_date=today - timedelta(days=10),
+                completed=True,
+            )
+
+        login(request, user)
+        messages.success(
+            request,
+            "⚡ Welcome to Guest Demo Mode! You are logged in as a Guest User with pre-loaded sample courses and AI Assistant context.",
+        )
+        return redirect("courses:dashboard")
+
+
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "courses/dashboard.html"
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

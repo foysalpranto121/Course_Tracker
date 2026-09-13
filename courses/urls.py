@@ -4,13 +4,16 @@ from . import views
 app_name = "courses"
 
 urlpatterns = [
-    path("", views.DashboardView.as_view(), name="dashboard"),
+    path("", views.LandingPageView.as_view(), name="landing"),
+    path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
 
     # Auth & Profile CBV routes
     path("signup/", views.SignUpView.as_view(), name="signup"),
     path("signin/", views.SignInView.as_view(), name="signin"),
+    path("guest-signin/", views.GuestSignInView.as_view(), name="guest_signin"),
     path("signout/", views.SignOutView.as_view(), name="signout"),
     path("profile/", views.ProfileView.as_view(), name="profile"),
+
 
     # Course CBV routes
     path("courses/", views.CourseListView.as_view(), name="course_list"),

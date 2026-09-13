@@ -1,0 +1,208 @@
+{% extends "courses/base.html" %}
+{% load static %}
+
+{% block title %}
+    Welcome — AI Course Tracker & Task Manager
+{% endblock %}
+
+{% block content %}
+<div class="landing-page-container">
+
+    <!-- 1. Hero Banner Section -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5 bg-dark text-white position-relative" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);">
+        <div class="card-body p-4 p-md-5 text-center position-relative" style="z-index: 2;">
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-white bg-opacity-10 text-cyan mb-4 border border-white border-opacity-20 shadow-sm">
+                <span class="pulse-dot"></span>
+                <span class="fs-7 fw-bold text-uppercase tracking-wider text-light">🤖 AI-Powered Learning Tracker</span>
+            </div>
+
+            <h1 class="display-4 fw-extrabold mb-3 text-white">
+                Track Courses. Master Skills. <br class="d-none d-md-block">
+                <span class="text-transparent bg-clip-text" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Supercharge Your Learning.</span>
+            </h1>
+
+            <p class="lead text-light opacity-90 max-w-2xl mx-auto mb-4" style="max-width: 720px; font-weight: 300;">
+                A modern full-stack web application designed to track course milestones, manage task deadlines, generate custom AI study plans, and export analytics seamlessly.
+            </p>
+
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                <a href="{% url 'courses:guest_signin' %}" class="btn btn-lg btn-primary rounded-pill px-4 py-3 fw-bold shadow-lg d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); border: none;">
+                    <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+                    <span>Try Live Demo (Guest Access)</span>
+                </a>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'courses:signin' %}" class="btn btn-lg btn-outline-light rounded-pill px-4 py-3 fw-semibold d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Sign In</span>
+                    </a>
+                    <a href="{% url 'courses:signup' %}" class="btn btn-lg btn-light text-primary rounded-pill px-4 py-3 fw-semibold d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span>Sign Up</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'courses:dashboard' %}" class="btn btn-lg btn-success rounded-pill px-4 py-3 fw-bold shadow">
+                        <i class="bi bi-speedometer2 me-1"></i> Go to Dashboard
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Demo Hint -->
+            <div class="mt-4 pt-2">
+                <span class="badge bg-white bg-opacity-10 text-light fw-normal px-3 py-2 rounded-pill border border-white border-opacity-10">
+                    <i class="bi bi-info-circle me-1 text-info"></i> No registration required! Tap <strong>Guest Access</strong> to test pre-loaded sample courses immediately.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Platform Stats Bar -->
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100 bg-white border-start border-4 border-primary">
+                <div class="text-primary fs-3 fw-bold mb-0">{{ total_courses_count|default:"10+" }}</div>
+                <small class="text-muted fw-semibold text-uppercase fs-8">Courses Tracked</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100 bg-white border-start border-4 border-info">
+                <div class="text-info fs-3 fw-bold mb-0">{{ total_tasks_count|default:"25+" }}</div>
+                <small class="text-muted fw-semibold text-uppercase fs-8">Milestone Tasks</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100 bg-white border-start border-4 border-success">
+                <div class="text-success fs-3 fw-bold mb-0">100%</div>
+                <small class="text-muted fw-semibold text-uppercase fs-8">Automated Sync</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100 bg-white border-start border-4 border-warning">
+                <div class="text-warning fs-3 fw-bold mb-0">AI Ready</div>
+                <small class="text-muted fw-semibold text-uppercase fs-8">Smart Tutor</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Key Feature Cards Grid -->
+    <div class="mb-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark mb-1">Key Application Features</h2>
+            <p class="text-muted">Everything you need to organize your educational journey efficiently.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 hover-shadow transition-all">
+                    <div class="card-body">
+                        <div class="feature-icon bg-primary bg-opacity-10 text-primary rounded-3 d-inline-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-speedometer2 fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Analytics Dashboard</h5>
+                        <p class="text-muted small mb-0">
+                            Real-time calculation of overall completion percentage, active enrolments, and milestone progress bars.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 hover-shadow transition-all">
+                    <div class="card-body">
+                        <div class="feature-icon bg-info bg-opacity-10 text-info rounded-3 d-inline-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-robot fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Context-Aware AI Tutor</h5>
+                        <p class="text-muted small mb-0">
+                            Floating AI assistant that reads your active courses to generate custom 7-day study plans, practice quizzes, and deadline reminders.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 hover-shadow transition-all">
+                    <div class="card-body">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-3 d-inline-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-file-earmark-excel fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Excel Import & Export</h5>
+                        <p class="text-muted small mb-0">
+                            Bulk import course spreadsheets with automatic duplicate detection, tracking reports, and 1-click Excel export.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3 hover-shadow transition-all">
+                    <div class="card-body">
+                        <div class="feature-icon bg-warning bg-opacity-10 text-warning rounded-3 d-inline-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-calendar-check fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Task & Deadline Manager</h5>
+                        <p class="text-muted small mb-0">
+                            Assign task deadlines per course, monitor completion status, and trigger completion notifications to instructors.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. System Architecture & Tech Stack Section -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5 mb-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6">
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1.5 rounded-pill mb-2">PRODUCTION ARCHITECTURE</span>
+                <h3 class="fw-bold text-dark mb-3">Enterprise Tech Stack</h3>
+                <p class="text-muted mb-4">
+                    Built using industry standard frameworks ensuring high reliability, fast server rendering, and automated continuous deployment.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge bg-dark text-white px-3 py-2 rounded-pill fs-7"><i class="bi bi-code-slash text-success me-1"></i> Django 5.x</span>
+                    <span class="badge bg-dark text-white px-3 py-2 rounded-pill fs-7"><i class="bi bi-database text-info me-1"></i> PostgreSQL</span>
+                    <span class="badge bg-dark text-white px-3 py-2 rounded-pill fs-7"><i class="bi bi-cpu text-warning me-1"></i> Gunicorn WSGI</span>
+                    <span class="badge bg-dark text-white px-3 py-2 rounded-pill fs-7"><i class="bi bi-lightning text-primary me-1"></i> WhiteNoise</span>
+                    <span class="badge bg-dark text-white px-3 py-2 rounded-pill fs-7"><i class="bi bi-cloud-upload text-cyan me-1"></i> Render Cloud</span>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="p-4 rounded-4 bg-light border text-center">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-diagram-3-fill text-primary me-1"></i> Django Request & Data Flow</h6>
+                    <div class="d-flex flex-column gap-2 text-start small">
+                        <div class="p-2.5 bg-white rounded-3 border d-flex align-items-center gap-2">
+                            <i class="bi bi-globe text-primary"></i> <strong>1. Client Request</strong> &rarr; User browses or interacts with AI assistant
+                        </div>
+                        <div class="p-2.5 bg-white rounded-3 border d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check text-success"></i> <strong>2. Custom Middleware</strong> &rarr; Global Auth & Performance timing
+                        </div>
+                        <div class="p-2.5 bg-white rounded-3 border d-flex align-items-center gap-2">
+                            <i class="bi bi-cpu text-warning"></i> <strong>3. Class-Based Views</strong> &rarr; Django ORM queries PostgreSQL
+                        </div>
+                        <div class="p-2.5 bg-white rounded-3 border d-flex align-items-center gap-2">
+                            <i class="bi bi-display text-info"></i> <strong>4. Response</strong> &rarr; Glassmorphism HTML5 template rendering
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Bottom Call-To-Action Banner -->
+    <div class="card border-0 shadow-lg rounded-4 bg-primary text-white text-center p-4 p-md-5 position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%);">
+        <h3 class="fw-bold text-white mb-2">Ready to explore the application?</h3>
+        <p class="text-light opacity-90 mb-4">Click below to jump straight into the live environment with pre-loaded demo courses.</p>
+        <div>
+            <a href="{% url 'courses:guest_signin' %}" class="btn btn-lg btn-light text-primary fw-bold rounded-pill px-4 py-2.5 shadow hover-lift">
+                <i class="bi bi-rocket-takeoff-fill text-primary me-1.5"></i> Launch Guest Demo Mode
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

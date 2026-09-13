@@ -68,7 +68,17 @@
                     <button type="submit" class="btn btn-success w-100 py-2.5 rounded-pill fw-semibold shadow-sm mt-3 mb-3">
                         <i class="bi bi-person-check me-1.5"></i> Register Account
                     </button>
+
+                    <div class="position-relative text-center my-3">
+                        <hr class="text-muted opacity-25">
+                        <span class="position-absolute top-50 start-50 translate-middle px-3 bg-white text-muted fs-8 fw-semibold text-uppercase">OR</span>
+                    </div>
+
+                    <a href="{% url 'courses:guest_signin' %}" class="btn btn-outline-primary w-100 py-2.5 rounded-pill fw-bold shadow-sm mb-3">
+                        <i class="bi bi-lightning-charge-fill text-warning me-1.5"></i> Instant Guest Access (No Sign Up Needed)
+                    </a>
                 </form>
+
 
                 <div class="text-center pt-3 border-top">
                     <p class="text-muted small mb-0">
