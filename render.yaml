@@ -1,0 +1,26 @@
+databases:
+  - name: todo-db
+    databaseName: todo_db
+    user: todo_user
+    plan: free
+
+services:
+  - type: web
+    name: todo-django-app
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn todo_project.wsgi:application"
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: todo-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: PYTHON_VERSION
+        value: "3.10.12"

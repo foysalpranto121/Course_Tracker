@@ -270,9 +270,55 @@ To host this Django project on your **Shared Hosting SSD NVMe (`prantodev.com`)*
 
 ---
 
+## 🚀 Render Cloud Deployment
+
+Deploying this application on [Render](https://render.com) is automated using the included `render.yaml` Blueprint spec:
+
+### Option A: 1-Click Blueprint Deployment (Recommended)
+
+1. Push your latest code changes to your GitHub repository:
+   ```bash
+   git add .
+   git commit -m "Configure project for Render deployment"
+   git push origin main
+   ```
+2. Log in to [Render Dashboard](https://dashboard.render.com/).
+3. Click **New +** and select **Blueprint**.
+4. Connect your GitHub repository (`foysalpranto121/TODO_using-Django`).
+5. Render will automatically detect `render.yaml` and configure:
+   - **PostgreSQL Database** (`todo-db`)
+   - **Django Web Service** (`todo-django-app`)
+6. Click **Apply**. Render will automatically build the environment, run database migrations, collect static assets, and launch your site with HTTPS!
+
+### Option B: Manual Web Service Setup
+
+If you prefer creating services manually in Render:
+
+1. **Create PostgreSQL Database:**
+   - On Render, click **New +** -> **PostgreSQL**.
+   - Name: `todo-db`, Database: `todo_db`, User: `todo_user`.
+   - Copy the **Internal Database URL** after creation.
+
+2. **Create Web Service:**
+   - Click **New +** -> **Web Service**.
+   - Connect your GitHub repo.
+   - Set **Runtime**: `Python`.
+   - Set **Build Command**: `./build.sh`
+   - Set **Start Command**: `gunicorn todo_project.wsgi:application`
+
+3. **Set Environment Variables in Render Web Service Settings:**
+   - `DATABASE_URL`: *(paste the Internal Database URL from step 1)*
+   - `SECRET_KEY`: *(generate a secure random string)*
+   - `DEBUG`: `False`
+   - `ALLOWED_HOSTS`: `.onrender.com`
+   - `GEMINI_API_KEY`: *(optional, your Gemini API key)*
+
+---
+
 ## 📜 License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 Developed with ❤️ using **Django** and **PostgreSQL**.
+
 
