@@ -28,7 +28,7 @@
     <!-- Custom CSS -->
     <link
         rel="stylesheet"
-        href="{% static 'courses/css/style.css' %}?v=1.2"
+        href="{% static 'courses/css/style.css' %}?v=1.3"
     >
 </head>
 
@@ -120,6 +120,8 @@
         </div>
     </nav>
 
+    <!-- Full-bleed slot for edge-to-edge sections (e.g. the landing hero) -->
+    {% block hero %}{% endblock %}
 
     <!-- Main Content -->
     <main class="container py-4 flex-grow-1">
